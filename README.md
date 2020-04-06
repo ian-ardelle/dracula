@@ -1,5 +1,5 @@
 # CrossroadsVTM-Projects
-The projects within this repository are used by Crossroads, the VtM Discord-based RP run by Thrass.
+The projects within this repository are used by Crossroads, the VtM Discord-based RP.
 ## Dracula
 Dracula is a python-based bot which integrates with Discord, that pulls random integers from Random.org's generation engine via a JSON-RPC v2 request.
 It utilizes several commands:
