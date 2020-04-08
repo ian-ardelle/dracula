@@ -204,6 +204,7 @@ class Misc(commands.Cog):
         else:
             listers = (int(user), contents, now.strftime("%m/%d/%y %H:%M:%S"))
             c.execute("INSERT INTO Reports(uid, contents, datetime) VALUES(?, ?, ?)", listers)
+            conn.commit()
             await ctx.send("Report submitted successfully!")
 
 
