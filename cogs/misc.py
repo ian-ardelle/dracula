@@ -4,6 +4,7 @@ import os
 from lib.dbman import c, conn
 from lib import rand_org_gen
 import discord
+from datetime import datetime, timedelta
 
 
 class Misc(commands.Cog):
@@ -177,6 +178,33 @@ class Misc(commands.Cog):
                 f.write(item)
             f.close()
             await ctx.send("Archive generation complete.")
+
+    @commands.command()
+    async def report(self, ctx, *words):
+        user = ctx.author.id
+        contents = ""
+        spam = 0
+        for word in words:
+            contents += word + " "
+        contents = contents[:-1]
+        now = datetime.utcnow()
+        lister = (int(user),)
+        c.execute("SELECT datetime from Reports WHERE uid = ?", lister)
+        history = c.fetchall()
+        if history:
+            last_report = history[-1][0]
+            print(last_report)
+            last_report = datetime.strptime(last_report, '%m/%d/%y %H:%M:%S')
+            diff = now - last_report
+            if diff < timedelta(hours=2):
+                await ctx.send("It's been less than two hours since your last report was submitted. Please slow down your submissions, or consider combining multiple reports into a single submission.")
+                spam = 1
+        if spam:
+            pass
+        else:
+            listers = (int(user), contents, now.strftime("%m/%d/%y %H:%M:%S"))
+            c.execute("INSERT INTO Reports(uid, contents, datetime) VALUES(?, ?, ?)", listers)
+            await ctx.send("Report submitted successfully!")
 
 
 def setup(bot):
