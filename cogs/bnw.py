@@ -35,32 +35,6 @@ class BnW(commands.Cog):
     async def loop_starts(self):
         await self.bot.wait_until_ready()
 
-    # reset_bp_wp_table()
-    # Uses authorization function to check if user has the ST role
-    # If so, drops the current BnW table and produces a new one
-    # This command should be updated as new columns are added to BnW
-    @commands.command()
-    async def reset_bp_wp_table(self, ctx):
-        '''
-        This is a spooky command only usable by STs.\n\
-        Basically it resets all contents of the BP/WP table.
-        '''
-        authorized = False
-        auth_nh = False
-        for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
-                authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
-        if authorized:
-            c.execute("DROP TABLE IF EXISTS BnW")
-            c.execute("CREATE TABLE IF NOT EXISTS BnW (player_id int, bp int, bp_max int, wp int, wp_max int, agg_dmg int, active_toggle bit, upkeep int, upkeep_date text, alert_flag bit)")
-            await ctx.send("Table cleared.")
-        elif auth_nh:
-            c.execute("DROP TABLE IF EXISTS NHBnW")
-            c.execute("CREATE TABLE IF NOT EXISTS NHBnW (player_id int, bp int, bp_max int, wp int, wp_max int, agg_dmg int, active_toggle bit, upkeep int, upkeep_date text, alert_flag bit)")
-            await ctx.send("Table cleared.")
-
     # bp_wp_pop()
     # Again uses authentication loop for STs
     # Populates any new users into the BnW database
@@ -101,7 +75,7 @@ class BnW(commands.Cog):
 
     @commands.command()
     async def add_player(self, ctx, member: discord.Member):
-        ''' 
+        '''
         Adds a blank entry for the mentioned Discord user.
         '''
         authorized = False
@@ -430,7 +404,7 @@ class BnW(commands.Cog):
             global zeros_message
             zeros_message = ""
             while i < len(player_list):
-                zeros_message += self.bot.get_user(int(player_list[i][0])).mention + "\n"
+                zeros_message += self.bot.get_guild(config.GUILD_ID).get_member(int(player_list[i][0])).display_name + "\n"
                 i += 1
             await ctx.author.send(f"Players with 0 Blood Points:\n{zeros_message}")
         else:
