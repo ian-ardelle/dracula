@@ -1,9 +1,11 @@
 from discord.ext import commands
 import config
-import os
 from lib.dbman import c, conn
-from lib import rand_org_gen
 import discord
+import aiohttp
+import aiofiles
+from PIL import Image
+import random
 from datetime import datetime, timedelta
 
 
@@ -83,7 +85,7 @@ class Misc(commands.Cog):
             outputs = c.fetchall()
             for entry in outputs:
                 message += str(self.bot.get_guild(config.GUILD_ID).get_member(entry[0]).display_name) + ", " + str(self.bot.get_guild(config.GUILD_ID).get_member(entry[1]).display_name) + "\n"
-            await ctx.author.send(message)'''
+            await ctx.author.send(message)
 
     @commands.command()
     async def start_auction(self, ctx, member: discord.Member):
@@ -143,7 +145,7 @@ class Misc(commands.Cog):
             lister = (member.id,)
             c.execute("DELETE FROM Auction WHERE auctioned = ?", lister)
             conn.commit()
-            await ctx.send(f"Auction for {member.mention} has been cleared.")
+            await ctx.send(f"Auction for {member.mention} has been cleared.")'''
 
     @commands.command(hidden=True)
     async def scrape(self, ctx, cid):
@@ -154,18 +156,18 @@ class Misc(commands.Cog):
         if authorized:
             chan_name = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid)).name
             await ctx.send("Archiving channel...")
-            script_dir = os.path.dirname(__file__)
-            working_dir = os.path.join(script_dir, os.pardir, "backups", chan_name)
-            if not os.path.exists(working_dir):
-                os.makedirs(working_dir)
-            working_file = os.path.join(working_dir, "log.txt")
+            working_dir = pathlib.Path.cwd() / "backups" / chan_name
+            if not working_dir.exists():
+                working_dir.mkdir()
+            working_file = working_dir / "log.txt"
             f = open(working_file, "w")
             counter = 0
             mychan = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid))
             async for message in mychan.history(limit=None):
                 for file in message.attachments:
                     f.write(file.url)
-                f.write(f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.content}\n")
+                f.write(
+                    f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
                 counter += 1
             await ctx.send(f"Channel archived {counter} messages.")
             f.close()
@@ -177,7 +179,149 @@ class Misc(commands.Cog):
             for item in s:
                 f.write(item)
             f.close()
-            await ctx.send("Archive generation complete.")
+            await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
+
+    @commands.command(hidden=True)
+    async def scrape_all(self, ctx):
+        authorized = False
+        for role in ctx.author.roles:
+            if config.ST_ROLE == role.id:
+                authorized = True
+        if authorized:
+            await ctx.send("Archiving server...")
+            for chan in self.bot.get_guild(config.GUILD_ID).text_channels:
+                if chan == ctx.channel:
+                    continue
+                else:
+                    chan_name = chan.name
+                    if chan.category:
+                        category_dir = pathlib.Path.cwd() / "archive" / chan.category.name
+                        if not category_dir.exists():
+                            category_dir.mkdir()
+                        working_dir = pathlib.Path.cwd() / "archive" / chan.category.name / chan_name
+                    else:
+                        working_dir = pathlib.Path.cwd() / "archive" / chan_name
+                    if not working_dir.exists():
+                        working_dir.mkdir()
+                    working_file = working_dir / "log.txt"
+                    f = open(working_file, "w")
+                    counter = 0
+                    async for message in chan.history(limit=None):
+                        for file in message.attachments:
+                            f.write(file.url)
+                        f.write(
+                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+                        counter += 1
+                    await ctx.send(f"Channel archived {counter} messages.")
+                    f.close()
+                    f = open(working_file, "r")
+                    s = f.readlines()
+                    f.close()
+                    f = open(working_file, "w")
+                    s.reverse()
+                    for item in s:
+                        f.write(item)
+                    f.close()
+                    await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
+            await ctx.send("Server archive complete.")
+
+    @commands.command()
+    async def avatar(self, ctx, member: discord.Member):
+        url = str(member.avatar_url)
+        filename = url.split("/")[-1]
+        filename = filename.split("?")[
+            0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
+
+        async with aiohttp.ClientSession() as image:
+            async with image.get(url) as ava:
+                if ava.status == 200:
+                    avatar = await aiofiles.open(pathlib.Path.cwd() / filename, mode='wb')
+                    await avatar.write(await ava.read())
+                    await avatar.close()
+        ava_img = pathlib.Path.cwd() / filename
+        if member.is_avatar_animated():
+            await ctx.send(file=discord.File(ava_img))
+        else:
+            ava_new = pathlib.Path.cwd() / (filename + ".png")
+            ava_edit = Image.open(ava_img)
+            ava_edit.save(ava_new)
+            await ctx.send(file=discord.File(ava_new))
+            ava_new.unlink()
+        ava_img.unlink()
+
+    '''@commands.command()
+    async def caption(self, ctx, member: discord.Member, *words):
+        url = str(member.avatar_url)
+        filename = url.split("/")[-1]
+        filename = filename.split("?")[
+            0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
+
+        async with aiohttp.ClientSession() as image:
+            async with image.get(url) as ava:
+                if ava.status == 200:
+                    avatar = await aiofiles.open(pathlib.Path.cwd() / filename, mode='wb')
+                    await avatar.write(await ava.read())
+                    await avatar.close()
+        ava_img = pathlib.Path.cwd() / filename
+        if member.is_avatar_animated():
+            await ctx.send(file=discord.File(ava_img))
+        else:
+            ava_new = pathlib.Path.cwd() / (filename + ".png")
+            ava_edit = Image.open(ava_img)
+            ava_edit.save(ava_new)
+            await ctx.send(file=discord.File(ava_new))
+            ava_new.unlink()
+        ava_img.unlink()'''
+
+    @commands.command()
+    async def st_gen(self, ctx):
+        authorized = False
+        for role in ctx.author.roles:
+            if config.ST_ROLE == role.id:
+                authorized = True
+        if authorized:
+            raw_user_list = ctx.guild.members
+            user_list = []
+            st_list = []
+            for user in raw_user_list:
+                if not user.bot:
+                    user_list.append(user.id)
+                for role in user.roles:
+                    if role.id == config.ST_ROLE:
+                        st_list.append(user.id)
+                        user_list.remove(user.id)
+                    elif role.name == "On Hiatus":
+                        user_list.remove(user.id)
+                    elif role.name == "Under construction":
+                        user_list.remove(user.id)
+                if not user.roles:
+                    user_list.remove(user.id)
+
+            quality_check = 0
+            message = ""
+            while quality_check == 0:
+                message = ""
+                quality_check = 1
+                random_st = random.sample(range(0, len(st_list)), len(st_list))
+                for st in st_list:
+                    st_i = st_list.index(st)
+                    user_i = random_st[st_i]
+                    if st_i == user_i:
+                        quality_check = 0
+                    message += ctx.guild.get_member(st).mention + "'s victims:"
+                    message += "\n" + ctx.guild.get_member(st_list[user_i]).mention
+                    message += "~/~/~"
+            msg = message.split("~/~/~")
+            random_raw = random.sample(range(0, len(user_list)), len(user_list))
+            user_rand = []
+            for index in random_raw:
+                user_rand.append(user_list[index])
+            for user in user_rand:
+                st_index = user_rand.index(user) % len(st_list)
+                msg[st_index] += "\n" + ctx.guild.get_member(user).mention
+            for mess in msg:
+                if mess != "":
+                    await ctx.send(mess)
 
     @commands.command()
     async def report(self, ctx, *words):
@@ -206,6 +350,9 @@ class Misc(commands.Cog):
             c.execute("INSERT INTO Reports(uid, contents, datetime) VALUES(?, ?, ?)", listers)
             conn.commit()
             await ctx.send("Report submitted successfully!")
+
+    '''@commands.command()
+    async def view_reports(self, ctx, ):'''
 
 
 def setup(bot):
