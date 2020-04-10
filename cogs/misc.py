@@ -1,5 +1,6 @@
 from discord.ext import commands
 import config
+import pathlib
 from lib.dbman import c, conn
 import discord
 import aiohttp
@@ -209,8 +210,7 @@ class Misc(commands.Cog):
                     async for message in chan.history(limit=None):
                         for file in message.attachments:
                             f.write(file.url)
-                        f.write(
-                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+                        f.write(f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
                         counter += 1
                     await ctx.send(f"Channel archived {counter} messages.")
                     f.close()
@@ -229,8 +229,7 @@ class Misc(commands.Cog):
     async def avatar(self, ctx, member: discord.Member):
         url = str(member.avatar_url)
         filename = url.split("/")[-1]
-        filename = filename.split("?")[
-            0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
+        filename = filename.split("?")[0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
 
         async with aiohttp.ClientSession() as image:
             async with image.get(url) as ava:
