@@ -384,6 +384,100 @@ class Dice(commands.Cog):
                     await self.bot.get_channel(config.ST_ALERTS_CHANNEL).send("{} botched a feeding roll!".format(ctx.author.mention))
 
     @commands.command()
+    async def r20(self, ctx, pool: int = 1, diff: int = 6, wp: str = "0", *reason):
+        '''
+        Same as $r except this also applies explosions to the dice.\n\
+        Syntax: $re [Dice Pool] [Difficulty] [wpifier]\n\
+        \n\
+        Example: $re 5 7 => [10, 2, 8, 4, 3] [9] Results: 3 Successes!
+        '''
+        st_alert = 0
+        reason_string = ""
+
+        if pool < 1:
+            pass
+
+        elif diff < 1:
+            pass
+
+        else:
+            reason = list(reason)
+            try:
+                wp = int(wp)
+            except ValueError:
+                reason.insert(0, wp)
+                wp = 0
+            if not reason:
+                reason = ["No reason provided."]
+            for word in reason:
+                reason_string += word + " "
+            reason_string = reason_string[:-1]
+            ss = 0
+            fail = 0
+            tens = 0
+            random_raw = []
+            for i in range(pool):
+                random_raw.append(random.randint(1, 10))
+            await ctx.send(random_raw)
+            for roll in random_raw:
+                if roll >= diff:
+                    ss += 1
+
+                elif roll == 1:
+                    fail += 1
+
+                if roll == 10:
+                    tens += 1
+            ss += tens * 2
+            if ss <= 0 and wp <= 0:
+                if fail > 0:
+                    result = "Botch! | Reason: " + str(reason_string)
+                    st_alert = 2
+
+                else:
+                    result = "Failure! | Reason: " + str(reason_string)
+                    st_alert = 1
+
+            else:
+                ss -= fail
+                tens -= fail
+                if ss <= 0:
+                    ss = wp
+                else:
+                    ss += wp
+
+                if ss <= 0:
+                    result = "Failure! | Reason: " + str(reason_string)
+                    st_alert = 1
+                else:
+                    result = str(ss) + " Successes! | Reason: " + str(reason_string)
+            await ctx.send("{} - Results: ".format(ctx.author.mention) + result)
+            if ctx.channel == self.bot.get_channel(config.FEEDING_CHANNEL):
+                global ss_net
+                ss_net = ss - fail
+                if ss_net < 0:
+                    ss_net = wp
+                lister = (ctx.author.id,)
+                c.execute("SELECT bp, bp_max FROM BnW WHERE player_id = ?", lister)
+                global new_bp
+                bp_data = list(c.fetchone())
+                current_bp = int(bp_data[0])
+                bp_max = int(bp_data[1])
+                if current_bp + ss > bp_max:
+                    new_bp = bp_max
+                else:
+                    new_bp = current_bp + ss_net
+                listers = (new_bp, ctx.author.id,)
+                c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
+                conn.commit()
+                if st_alert == 1:
+                    await self.bot.get_channel(config.ST_ALERTS_CHANNEL).send(
+                        "{} failed a feeding roll!".format(ctx.author.mention))
+                elif st_alert == 2:
+                    await self.bot.get_channel(config.ST_ALERTS_CHANNEL).send(
+                        "{} botched a feeding roll!".format(ctx.author.mention))
+
+    @commands.command()
     async def mr(self, ctx, pool: int = 1, diff: int = 6, wp: int = 0, roll_num: int = 10):
         """
         Rolls and checks successes.\n\
