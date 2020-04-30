@@ -80,10 +80,13 @@ class Time(commands.Cog):
         pid_list = [x[0] for x in pid_list]
         if pid_list:
             for pid in pid_list:
-                await self.bot.get_guild(config.GUILD_ID).get_member(int(pid)).send("Your character is at 0 BP due to infrequent feeding or inactivity. If your character remains on this list too long you risk being removed from Crossroads. When you log in please fill free to roll as many time as are necessary to fill your character's blood pool. You may then jump into play without accounting as the feeding occurred while you were offline.")
-                lister = (pid,)
-                c.execute("UPDATE BnW SET alert_flag = 1 WHERE player_id = ?", lister)
-                conn.commit()
+                try:
+                    await self.bot.get_guild(config.GUILD_ID).get_member(int(pid)).send("Your character is at 0 BP due to infrequent feeding or inactivity. If your character remains on this list too long you risk being removed from Crossroads. When you log in please fill free to roll as many time as are necessary to fill your character's blood pool. You may then jump into play without accounting as the feeding occurred while you were offline.")
+                    lister = (pid,)
+                    c.execute("UPDATE BnW SET alert_flag = 1 WHERE player_id = ?", lister)
+                    conn.commit()
+                except KeyError:
+                    continue
 
     @empty_bp_alert.before_loop
     async def before_alert(self):
