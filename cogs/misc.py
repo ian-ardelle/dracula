@@ -359,7 +359,7 @@ class Misc(commands.Cog):
             contents += word + " "
         contents = contents[:-1]
         lister = (int(user),)
-        c.execute("SELECT datetime from Reports WHERE uid = ?", lister)
+        c.execute("SELECT * from Reports WHERE uid = ?", lister)
         history = c.fetchall()
         if history:
             spam = 1
