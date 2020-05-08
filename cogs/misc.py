@@ -350,6 +350,28 @@ class Misc(commands.Cog):
             conn.commit()
             await ctx.send("Report submitted successfully!")
 
+    @commands.command()
+    async def feedback(self, ctx, *words):
+        user = ctx.author.id
+        contents = ""
+        spam = 0
+        for word in words:
+            contents += word + " "
+        contents = contents[:-1]
+        lister = (int(user),)
+        c.execute("SELECT datetime from Reports WHERE uid = ?", lister)
+        history = c.fetchall()
+        if history:
+            spam = 1
+        if spam:
+            ctx.send("You have already submitted feedback on this poll / query.")
+        else:
+            lister = (int(user),)
+            c.execute("INSERT INTO Feedback(uid) VALUES(?)", lister)
+            conn.commit()
+            await ctx.send("Report submitted successfully!")
+            await self.bot.get_channel(708369926850871298).send(contents)
+
     '''@commands.command()
     async def view_reports(self, ctx, ):'''
 

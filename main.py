@@ -36,6 +36,7 @@ async def on_ready():
     c.execute("CREATE TABLE IF NOT EXISTS SecretSanta (sender_id int, receiver_id int)")
     c.execute("CREATE TABLE IF NOT EXISTS Auction (auctioned int, bidder int, bid int, active bit)")
     c.execute("CREATE TABLE IF NOT EXISTS Reports (id INTEGER PRIMARY KEY, uid int, contents text, datetime text)")
+    c.execute("CREATE TABLE IF NOT EXISTS Feedback (uid int)")
     conn.commit()
     await bot.get_channel(config.BOT_ANNOUNCEMENTS_CHANNEL).send("Drac's back, baby!")
 
