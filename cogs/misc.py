@@ -364,7 +364,7 @@ class Misc(commands.Cog):
         if history:
             spam = 1
         if spam:
-            ctx.send("You have already submitted feedback on this poll / query.")
+            await ctx.send("You have already submitted feedback on this poll / query.")
         else:
             lister = (int(user),)
             c.execute("INSERT INTO Feedback(uid) VALUES(?)", lister)
