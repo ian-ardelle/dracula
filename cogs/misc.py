@@ -150,37 +150,32 @@ class Misc(commands.Cog):
 
     @commands.command(hidden=True)
     async def scrape(self, ctx, cid):
-        authorized = False
-        for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
-                authorized = True
-        if authorized:
-            chan_name = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid)).name
-            await ctx.send("Archiving channel...")
-            working_dir = pathlib.Path.cwd() / "backups" / chan_name
-            if not working_dir.exists():
-                working_dir.mkdir()
-            working_file = working_dir / "log.txt"
-            f = open(working_file, "w")
-            counter = 0
-            mychan = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid))
-            async for message in mychan.history(limit=None):
-                for file in message.attachments:
-                    f.write(file.url)
-                f.write(
-                    f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
-                counter += 1
-            await ctx.send(f"Channel archived {counter} messages.")
-            f.close()
-            f = open(working_file, "r")
-            s = f.readlines()
-            f.close()
-            f = open(working_file, "w")
-            s.reverse()
-            for item in s:
-                f.write(item)
-            f.close()
-            await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
+        chan_name = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid)).name
+        await ctx.send("Archiving channel...")
+        working_dir = pathlib.Path.cwd() / "backups" / chan_name
+        if not working_dir.exists():
+            working_dir.mkdir()
+        working_file = working_dir / "log.txt"
+        f = open(working_file, "w")
+        counter = 0
+        mychan = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid))
+        async for message in mychan.history(limit=None):
+            for file in message.attachments:
+                f.write(file.url)
+            f.write(
+                f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+            counter += 1
+        await ctx.send(f"Channel archived {counter} messages.")
+        f.close()
+        f = open(working_file, "r")
+        s = f.readlines()
+        f.close()
+        f = open(working_file, "w")
+        s.reverse()
+        for item in s:
+            f.write(item)
+        f.close()
+        await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
 
     @commands.command(hidden=True)
     async def scrape_all(self, ctx):
