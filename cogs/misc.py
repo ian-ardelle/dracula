@@ -157,7 +157,6 @@ class Misc(commands.Cog):
             working_dir.mkdir()
         working_file = working_dir / "log.txt"
         f = open(working_file, "w")
-        counter = 0
         mychan = self.bot.get_guild(config.GUILD_ID).get_channel(int(cid))
         async for message in mychan.history(limit=None):
             for file in message.attachments:
@@ -183,13 +182,15 @@ class Misc(commands.Cog):
         chan_list = self.bot.get_guild(int(server_id)).channels
         for chan in chan_list:
             chan_str += chan.name + " - " + str(chan.id) + "\n"
-        chan_len = len(chan_str)
-        msg_num = chan_len / 2000
-        x = 0
-        while x < msg_num:
-            await ctx.send(chan_str[2000*(x-1):2000*x])
-            x += 1
-
+        working_dir = pathlib.Path.cwd() / "backups"
+        if not working_dir.exists():
+            working_dir.mkdir()
+        working_file = working_dir / "chan_list.txt"
+        f = open(working_file, "w")
+        counter = 0
+        f.write(chan_str)
+        f.close()
+        await ctx.send("Channel list generation complete.", file=discord.File(working_file))
 
     @commands.command(hidden=True)
     async def scrape_all(self, ctx):
@@ -219,7 +220,8 @@ class Misc(commands.Cog):
                     async for message in chan.history(limit=None):
                         for file in message.attachments:
                             f.write(file.url)
-                        f.write(f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+                        f.write(
+                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
                         counter += 1
                     await ctx.send(f"Channel archived {counter} messages.")
                     f.close()
@@ -238,7 +240,8 @@ class Misc(commands.Cog):
     async def avatar(self, ctx, member: discord.Member):
         url = str(member.avatar_url)
         filename = url.split("/")[-1]
-        filename = filename.split("?")[0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
+        filename = filename.split("?")[
+            0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
 
         async with aiohttp.ClientSession() as image:
             async with image.get(url) as ava:
@@ -349,7 +352,8 @@ class Misc(commands.Cog):
             last_report = datetime.strptime(last_report, '%m/%d/%y %H:%M:%S')
             diff = now - last_report
             if diff < timedelta(hours=2):
-                await ctx.send("It's been less than two hours since your last report was submitted. Please slow down your submissions, or consider combining multiple reports into a single submission.")
+                await ctx.send(
+                    "It's been less than two hours since your last report was submitted. Please slow down your submissions, or consider combining multiple reports into a single submission.")
                 spam = 1
         if spam:
             pass
