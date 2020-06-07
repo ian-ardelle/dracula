@@ -180,7 +180,7 @@ class Misc(commands.Cog):
     @commands.command(hidden=True)
     async def chan_ids(self, ctx, server_id):
         chan_str = ""
-        chan_list = self.bot.get_guild(server_id).channels
+        chan_list = self.bot.get_guild(int(server_id)).channels
         for chan in chan_list:
             chan_str += chan.name + " - " + str(chan.id) + "\n"
         await ctx.send(chan_str[:-1])
