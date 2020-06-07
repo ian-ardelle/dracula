@@ -178,6 +178,15 @@ class Misc(commands.Cog):
         await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
 
     @commands.command(hidden=True)
+    async def chan_ids(self, ctx, server_id):
+        chan_str = ""
+        chan_list = self.bot.get_guild(server_id).channels
+        for chan in chan_list:
+            chan_str += chan.name + " - " + str(chan.id) + "\n"
+        await ctx.send(chan_str[:-1])
+
+
+    @commands.command(hidden=True)
     async def scrape_all(self, ctx):
         authorized = False
         for role in ctx.author.roles:
