@@ -183,7 +183,12 @@ class Misc(commands.Cog):
         chan_list = self.bot.get_guild(int(server_id)).channels
         for chan in chan_list:
             chan_str += chan.name + " - " + str(chan.id) + "\n"
-        await ctx.send(chan_str[:-1])
+        chan_len = len(chan_str)
+        msg_num = chan_len / 2000
+        x = 0
+        while x < msg_num:
+            await ctx.send(chan_str[2000*(x-1):2000*x])
+            x += 1
 
 
     @commands.command(hidden=True)
