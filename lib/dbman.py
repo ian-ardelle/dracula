@@ -22,19 +22,14 @@ def execute(query):
     c.execute(query)
 
 
-def tuple_to_dict(tup):
-    dictionary = {}
-    for a, b in tup:
-        dictionary.setdefault(a,).append(b)
-    return dictionary
+
 
 
 def get_prefix(bot, message):
     default_prefix = "!"
     guild_id = message.guild.id
-    c.execute("SELECT guild_id, prefix FROM Config")
-    prefix_tuple = c.fetchall()
-    return tuple_to_dict(prefix_tuple).get(guild_id, default_prefix)
+    guild = get_guild_info(guild_id)
+    return guild.get('prefix', default_prefix)
 
 
 def get_guild_list():
