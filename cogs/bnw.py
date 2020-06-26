@@ -16,8 +16,6 @@ class BnW(commands.Cog):
         for guild in db.get_guild_list():
             guild = db.get_guild_info(guild[0])
             bb_role = self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id"))
-            print(bb_role)
-            print(guild.get('bb_id'))
             bb_members = bb_role.members
             if bb_members is not None:
                 for member in bb_members:
