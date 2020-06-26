@@ -21,7 +21,7 @@ class BnW(commands.Cog):
                     if player.get("bp") + 1 <= player.get("bp_max"):
                         await self.bot.get_guild(guild.get("guild_id")).get_member(member.id).remove_roles(self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")))
                         new_bp = player.get("bp") + 1
-                        db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (new_bp, player.get("id")))
+                        db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (new_bp, player.get("id")))
 
     @blood_bag.before_loop
     async def loop_starts(self):
@@ -48,7 +48,7 @@ class BnW(commands.Cog):
                 if guild.get("player_role") in member.roles:
                     exist_check = db.get_player_info(ctx.guild.id, member.id)
                     if not exist_check:
-                        db.c.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
+                        db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
                                      "agg_dmg, alert_flag, guild_id) VALUES (%d,5,5,5,5,0,0,0,%d)", (member.id, ctx.guild.id))
             await ctx.send("Table populated.")
 
@@ -67,7 +67,7 @@ class BnW(commands.Cog):
         if authorized:
             exist_check = db.get_player_info(ctx.guild.id, member.id)
             if not exist_check:
-                db.c.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
+                db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
                              "agg_dmg, alert_flag, guild_id) VALUES (%d,5,5,5,5,0,0,0,%d)", (member.id, ctx.guild.id))
                 await ctx.send("Player Added")
             else:
@@ -89,7 +89,7 @@ class BnW(commands.Cog):
                 authorized = True
         if authorized:
             if value:
-                db.c.execute("UPDATE Characters SET bp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+                db.execute("UPDATE Characters SET bp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
                 await ctx.send("Value updated.")
 
     @commands.command()
@@ -106,7 +106,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("UPDATE Characters SET bp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+            db.execute("UPDATE Characters SET bp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -124,7 +124,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("UPDATE Characters SET wp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+            db.execute("UPDATE Characters SET wp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -141,7 +141,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("UPDATE Characters SET wp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+            db.execute("UPDATE Characters SET wp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -158,7 +158,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("UPDATE Characters SET agg_dmg = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+            db.execute("UPDATE Characters SET agg_dmg = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -175,7 +175,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("UPDATE Characters SET upkeep = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+            db.execute("UPDATE Characters SET upkeep = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -221,9 +221,9 @@ class BnW(commands.Cog):
                 d_player = ctx.guild.get_member(player.get("player_id"))
                 if d_player:
                     if d_player in ctx.guild.get_role(guild.get("player_role")).members:
-                        db.c.execute("UPDATE Characters SET active_toggle = 1 WHERE id = %d", player.get("id"))
-            db.c.execute("DELETE FROM Characters WHERE active_toggle = 0 AND guild_id = %d", guild.get("id"))
-            db.c.execute("UPDATE Characters SET active_toggle = 0")
+                        db.execute("UPDATE Characters SET active_toggle = 1 WHERE id = %d", player.get("id"))
+            db.execute("DELETE FROM Characters WHERE active_toggle = 0 AND guild_id = %d", guild.get("id"))
+            db.execute("UPDATE Characters SET active_toggle = 0")
             await ctx.send("Table updated.")
 
     @commands.command()
@@ -240,7 +240,7 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("DELETE FROM Characters WHERE player_id = %d AND guild_id = %d", (member.id, guild.get("id")))
+            db.execute("DELETE FROM Characters WHERE player_id = %d AND guild_id = %d", (member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -255,7 +255,7 @@ class BnW(commands.Cog):
             if guild.get("st_id") == role.id:
                 authorized = True
         if authorized:
-            db.c.execute("SELECT player_id from Characters WHERE bp = 0 AND guild_id = %d", guild.get("id"))
+            db.execute("SELECT player_id from Characters WHERE bp = 0 AND guild_id = %d", guild.get("id"))
             player_list = db.c.fetchall()
             i = 0
             zeros_message = ""
@@ -290,7 +290,7 @@ class BnW(commands.Cog):
                         await ctx.send("Error: Cannot spend BP in excess of pool.")
                     else:
                         mod = player.get("bp") - mod
-                        db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get("player_id")))
+                        db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get("player_id")))
                         await ctx.send("Values updated.")
                 else:
                     user_id = arg1
@@ -326,7 +326,7 @@ class BnW(commands.Cog):
                                     await ctx.send("Error: Cannot spend BP in excess of pool.")
                                 else:
                                     mod = player.get('bp') - mod
-                                    db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get('id')))
+                                    db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get('id')))
                                     await ctx.send("Values updated.")
                         except ValueError:
                             await ctx.send("Error: Invalid syntax.")
@@ -356,7 +356,7 @@ class BnW(commands.Cog):
                         await ctx.send("Error: Cannot spend WP in excess of pool.")
                     else:
                         mod = player.get('wp') - mod
-                        db.c.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
+                        db.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
                         await ctx.send("Values updated.")
                 else:
                     user_id = arg1
@@ -392,7 +392,7 @@ class BnW(commands.Cog):
                                     await ctx.send("Error: Cannot spend WP in excess of pool.")
                                 else:
                                     mod = player.get('wp') - mod
-                                    db.c.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
+                                    db.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
                                     await ctx.send("Values updated.")
                         except ValueError:
                             await ctx.send("Error: Invalid syntax.")
