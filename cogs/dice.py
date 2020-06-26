@@ -79,7 +79,7 @@ class Dice(commands.Cog):
                 new_bp = current_bp + net_ss
                 if new_bp > bp_max:
                     new_bp = bp_max
-                db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (new_bp, player.get("id")))
+                db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (new_bp, player.get("id")))
                 if alert_st == 1:
                     await self.bot.get_channel(guild.get("st_alerts_chan")).send("{} failed a feeding roll!".format(ctx.author.mention))
                 elif alert_st == 2:
@@ -190,7 +190,7 @@ class Dice(commands.Cog):
                 new_bp = current_bp + net_ss
                 if new_bp > bp_max:
                     new_bp = bp_max
-                db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (new_bp, player.get("id")))
+                db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (new_bp, player.get("id")))
                 if st_alert == 1:
                     await self.bot.get_channel(guild.get("st_alerts_chan")).send(
                         "{} failed a feeding roll!".format(ctx.author.mention))

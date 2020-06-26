@@ -34,12 +34,12 @@ class Time(commands.Cog):
                 for player in player_list:
                     current_bp = player.get("bp") - 1
                     if current_bp >= 0:
-                        db.execute("UPDATE Characters SET bp = %d WHERE id = %d", (current_bp, player.get("id")))
+                        db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (current_bp, player.get("id")))
                     current_wp = player.get("wp")
                     current_wp_max = player.get("wp_max")
                     if current_wp < current_wp_max:
                         current_wp += 1
-                        db.execute("UPDATE BnW SET wp = %d WHERE player_id = %d", (current_wp, player.get("id")))
+                        db.execute("UPDATE BnW SET wp = %s WHERE player_id = %s", (current_wp, player.get("id")))
                     if player.get("upkeep_date") != '':
                         old_upkeep = player.get("upkeep_date")
                     else:
@@ -52,11 +52,11 @@ class Time(commands.Cog):
                             new_bp = player.get("bp") - 1
                             upkeep_datetime = old_upkeep + timedelta(
                                 days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
-                            db.execute("UPDATE Characters SET upkeep_date = %s, bp = %d WHERE id = %d",
+                            db.execute("UPDATE Characters SET upkeep_date = %s, bp = %s WHERE id = %s",
                                          (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
                     if player.get("bp") == 0:
                         if player.get("alert_flag") == 0:
-                            db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %d", player.get("id"))
+                            db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", player.get("id"))
                             try:
                                 guild_name = self.bot.get_guild(guild_id).name
                                 await self.bot.get_guild(guild_id).get_member(player.get("player_id")).send(
@@ -69,7 +69,7 @@ class Time(commands.Cog):
                                 continue
                     if player.get("alert_flag") == 1:
                         if player.get("bp") > 0:
-                            db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %d", player.get("id"))
+                            db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
 
     @daily_commands.before_loop
     async def before_alert(self):
