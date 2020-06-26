@@ -43,7 +43,7 @@ def ic_time(guild_id):
 def ic_datetime(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("tz")
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient")
     datetime_ic = datetime(utcICCurrent.year, utcICCurrent.month, utcICCurrent.day, int(ic_time()[0:2]), int(ic_time()[3:5]))
     return datetime_ic
 
@@ -51,5 +51,5 @@ def ic_datetime(guild_id):
 def ic_datetime_utc(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("tz")
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient")
     return utcICCurrent
