@@ -23,6 +23,7 @@ def execute(query, params=''):
         c.execute(query, params)
     else:
         c.execute(query)
+    db.commit()
 
 
 def get_prefix(bot, message):
