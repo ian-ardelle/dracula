@@ -62,7 +62,7 @@ def get_player_info(guild_id, player_id):
 
 def get_all_players(guild_id):
     guild = get_guild_info(guild_id)
-    c.execute("SELECT * FROM Characters WHERE guild_id = %s", (guild.get('id',)))
+    c.execute("SELECT * FROM Characters WHERE guild_id = %s", (guild.get('id'),))
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:

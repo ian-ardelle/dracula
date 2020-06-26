@@ -48,29 +48,26 @@ class Time(commands.Cog):
                     if not old_upkeep:
                         ctime = time.ic_datetime_utc(guild_id)
                         old_upkeep = ctime
-                    if old_upkeep < ctime and player.get("upkeep") > 0:
-                        if player.get("bp") > 0:
-                            new_bp = player.get("bp") - 1
-                            upkeep_datetime = old_upkeep + timedelta(
-                                days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
-                            db.execute("UPDATE Characters SET upkeep_date = %s, bp = %s WHERE id = %s",
-                                         (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
-                    if player.get("bp") == 0:
-                        if player.get("alert_flag") == 0:
-                            db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", player.get("id"))
-                            try:
-                                guild_name = self.bot.get_guild(guild_id).name
-                                await self.bot.get_guild(guild_id).get_member(player.get("player_id")).send(
-                                    f"Your character is at 0 BP due to infrequent feeding or inactivity. If your \
-                                    character remains on this list too long you risk being removed from {guild_name}. \
-                                    When you log in please fill free to roll as many time as are necessary to fill \
-                                    your character's blood pool. You may then jump into play without accounting as the \
-                                    feeding occurred while you were offline.")
-                            except KeyError:
-                                continue
-                    if player.get("alert_flag") == 1:
-                        if player.get("bp") > 0:
-                            db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
+                    if old_upkeep < ctime and player.get("upkeep") > 0 and player.get("bp") > 0:
+                        new_bp = player.get("bp") - 1
+                        upkeep_datetime = old_upkeep + timedelta(
+                            days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
+                        db.execute("UPDATE Characters SET upkeep_date = %s, bp = %s WHERE id = %s",
+                                   (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
+                    if player.get("bp") == 0 and player.get("alert_flag") == 0:
+                        db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", player.get("id"))
+                        try:
+                            guild_name = self.bot.get_guild(guild_id).name
+                            await self.bot.get_guild(guild_id).get_member(player.get("player_id")).send(
+                                f"Your character is at 0 BP due to infrequent feeding or inactivity. If your \
+                                character remains on this list too long you risk being removed from {guild_name}. \
+                                When you log in please fill free to roll as many time as are necessary to fill \
+                                your character's blood pool. You may then jump into play without accounting as the \
+                                feeding occurred while you were offline.")
+                        except KeyError:
+                            continue
+                    if player.get("alert_flag") == 1 and player.get("bp") > 0:
+                        db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
 
     @daily_commands.before_loop
     async def before_alert(self):
