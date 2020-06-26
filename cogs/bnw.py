@@ -14,7 +14,7 @@ class BnW(commands.Cog):
     @tasks.loop(seconds=15)
     async def blood_bag(self):
         for guild in db.get_guild_list():
-            guild = guild[0]
+            guild = db.get_guild_info(guild[0])
             bb_members = self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")).members
             if bb_members is not None:
                 for member in bb_members:
