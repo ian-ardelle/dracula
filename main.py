@@ -13,6 +13,8 @@ import discord
 # Removed config file, implemented constants in its place. #
 ############################################################
 
+print(db.get_guild_info(db.get_guild_list()[0]))
+
 DISCORD_API_KEY = "NTc1MDk0NjEyMzEwMzYwMDg2.XPyMmg.bBhJKtQ9-PrsDTuS1hyoBvnJHxM"
 
 bot = commands.Bot(command_prefix=db.get_prefix, description="Dracula the Discord Daemon")
