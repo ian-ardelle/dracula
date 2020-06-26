@@ -46,7 +46,7 @@ def get_guild_info(guild_id):
     return dict(id=guild_info[0], guild_id=guild_info[1], prefix=guild_info[2], date_coefficient=guild_info[3], ic_start=ic_start, irl_start=irl_start,
                 tz=timezone(guild_info[6]), date_chan=guild_info[7], feeding_chan=guild_info[8],
                 st_alerts_chan=guild_info[9], announcements_chan=guild_info[10], st_id=guild_info[11],
-                narrator_id=guild_info[12], bloodbag_id=guild_info[13], player_role=guild_info[14],
+                narrator_id=guild_info[12], bb_id=guild_info[13], player_role=guild_info[14],
                 stakes=guild_info[15], exploding_toggle=guild_info[16],
                 last_date=datetime.strptime(str(guild_info[17]), "%Y:%m:%d:%H:%M:%S"))
 
