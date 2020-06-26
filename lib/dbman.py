@@ -35,7 +35,7 @@ def get_guild_list():
 
 
 def get_guild_info(guild_id):
-    c.execute("SELECT * FROM Config WHERE guild_id = %s", (guild_id,))
+    c.execute("SELECT * FROM Config WHERE guild_id = %{guild_id}s", {'guild_id': guild_id})
     guild_info = c.fetchone()
     ic_start = datetime(int(guild_info[4][0:4]), int(guild_info[4][5:7]), int(guild_info[4][8:10]), int(guild_info[4][11:13]), int(guild_info[4][14:16]))
     irl_start = datetime(int(guild_info[5][0:4]), int(guild_info[5][5:7]), int(guild_info[5][8:10]), int(guild_info[5][11:13]), int(guild_info[5][14:16]))
@@ -58,7 +58,7 @@ def get_player_info(guild_id, player_id):
 
 def get_all_players(guild_id):
     guild = get_guild_info(guild_id)
-    c.execute("SELECT * FROM Characters WHERE guild_id = %s", (guild.get('id'),))
+    c.execute("SELECT * FROM Characters WHERE guild_id = %{guild_id}s", {'guild_id': guild.get('id')})
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
