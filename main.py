@@ -32,7 +32,6 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name="Vampire: The Masquerade"))
     print(f"Successfully logged in and booted!")
     for guild in db.get_guild_list():
-        print(guild)
-        await bot.get_channel(db.get_guild_info(guild).get("announcements_channel")).send("Drac's back, baby!")
+        await bot.get_channel(db.get_guild_info(guild[0]).get("announcements_channel")).send("Drac's back, baby!")
 
 bot.run(DISCORD_API_KEY, bot=True, reconnect=True)
