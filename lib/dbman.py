@@ -15,7 +15,7 @@ db = mysql.connect(
     database="Dracula"
 )
 
-c = db.cursor()
+c = db.cursor(buffered=True)
 
 
 def execute(query):
@@ -39,12 +39,12 @@ def get_prefix(bot, message):
 
 def get_guild_list():
     c.execute("SELECT guild_id FROM Config")
-    return db.c.fetchall()
+    return c.fetchall()
 
 
 def get_guild_info(guild_id):
     c.execute("SELECT * FROM Config WHERE guild_id = %d", guild_id)
-    guild_info = db.c.fetchone()
+    guild_info = c.fetchone()
     ic_start = datetime(int(guild_info[4][0:4]), int(guild_info[4][5:7]), int(guild_info[4][8:10]), int(guild_info[4][11:13]), int(guild_info[4][14:16]))
     irl_start = datetime(int(guild_info[5][0:4]), int(guild_info[5][5:7]), int(guild_info[5][8:10]), int(guild_info[5][11:13]), int(guild_info[5][14:16]))
     return dict(id=guild_info[0], date_coefficient=guild_info[3], ic_start=ic_start, irl_start=irl_start,
@@ -58,7 +58,7 @@ def get_guild_info(guild_id):
 def get_player_info(guild_id, player_id):
     g_id = get_guild_info(guild_id).get("id")
     c.execute("SELECT * FROM Characters WHERE guild_id = %d AND player_id = %d", g_id, player_id)
-    player = db.c.fetchone()
+    player = c.fetchone()
     formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4],
                             wp=player[5], upkeep=player[6], upkeep_date=player[7], guild_id=player[8])
     return formatted_player
@@ -66,7 +66,7 @@ def get_player_info(guild_id, player_id):
 
 def get_all_players(guild_id):
     c.execute("SELECT * FROM Characters")
-    player_list = db.c.fetchall()
+    player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
         formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4],
