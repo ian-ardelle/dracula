@@ -124,7 +124,7 @@ class Misc(commands.Cog):
     async def stake(self, ctx):
         guild = db.get_guild_info(ctx.guild.id)
         counter = guild.get("stakes")
-        db.execute("UPDATE Config SET Counter = %s WHERE id = %s", (counter + 1, guild.get("id")))
+        db.execute("UPDATE Config SET stakes = %s WHERE id = %s", (counter + 1, guild.get("id")))
         await ctx.send(f"*Gets frozen in place.* **Dracula has been staked: {counter} times!**")
 
     '''@commands.command()
