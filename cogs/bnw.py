@@ -1,8 +1,7 @@
 # bnw.py
 # Controls manipulation of blood / willpower levels
 from discord.ext import tasks, commands
-from lib.dbman import c, conn
-import config
+import lib.dbman as db
 import discord
 
 
@@ -14,22 +13,15 @@ class BnW(commands.Cog):
 
     @tasks.loop(seconds=15)
     async def blood_bag(self):
-        c.execute("SELECT player_id, bp, bp_max FROM BnW")
-        global member_list
-        member_list = c.fetchall()
-        for member in member_list:
-            member_id = member[0]
-            bp = member[1]
-            bp_max = member[2]
-            bb_members = self.bot.get_guild(config.GUILD_ID).get_role(config.BB_ROLE).members
+        for guild in db.get_guild_list():
+            bb_members = self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")).members
             if bb_members is not None:
-                if bp + 1 <= bp_max:
-                    if self.bot.get_guild(config.GUILD_ID).get_member(member_id) in bb_members:
-                        await self.bot.get_guild(config.GUILD_ID).get_member(member_id).remove_roles(self.bot.get_guild(config.GUILD_ID).get_role(config.BB_ROLE))
-                        new_bp = bp + 1
-                        listers = (new_bp, member_id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
+                for member in bb_members:
+                    player = db.get_player_info(guild.get("guild_id"), member.id)
+                    if player.get("bp") + 1 <= player.get("bp_max"):
+                        await self.bot.get_guild(guild.get("guild_id")).get_member(member.id).remove_roles(self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")))
+                        new_bp = player.get("bp") + 1
+                        db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (new_bp, player.get("id")))
 
     @blood_bag.before_loop
     async def loop_starts(self):
@@ -47,30 +39,17 @@ class BnW(commands.Cog):
         Will set all values other than their player_id to 0.
         """
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            for member in self.bot.get_guild(config.GUILD_ID).members:
-                if config.PLAYER_ROLE in member.roles:
-                    lister = (member.id,)
-                    c.execute("SELECT * FROM BnW WHERE player_id = ?", lister)
-                    exist_check = c.fetchone()
+            for member in ctx.guild.members:
+                if guild.get("player_role") in member.roles:
+                    exist_check = db.get_player_info(ctx.guild.id, member.id)
                     if not exist_check:
-                        c.execute("INSERT INTO BnW VALUES (?,0,0,0,0,0,0,0,'0',0)", lister)
-                        conn.commit()
-        elif auth_nh:
-            for member in self.bot.get_guild(config.GUILD_NH).members:
-                if config.PLAYER_NH in member.roles:
-                    lister = (member.id,)
-                    c.execute("SELECT * FROM NHBnW WHERE player_id = ?", lister)
-                    exist_check = c.fetchone()
-                    if not exist_check:
-                        c.execute("INSERT INTO NHBnW VALUES (?,0,0,0,0,0,0,0,'0',0)", lister)
-                        conn.commit()
+                        db.c.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
+                                     "agg_dmg, alert_flag, guild_id) VALUES (%d,5,5,5,5,0,0,0,%d)", (member.id, ctx.guild.id))
             await ctx.send("Table populated.")
 
     @commands.command()
@@ -79,22 +58,20 @@ class BnW(commands.Cog):
         Adds a blank entry for the mentioned Discord user.
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            c.execute("INSERT INTO BnW VALUES(?,0,0,0,0,0,0,0,'0',0);",(member.id,))
-            conn.commit()
-            await ctx.send("Player Added")
-        elif auth_nh:
-            c.execute("INSERT INTO NHBnW VALUES(?,0,0,0,0,0,0,0,'0',0);", (member.id,))
-            conn.commit()
-            await ctx.send("Player Added")
+            exist_check = db.get_player_info(ctx.guild.id, member.id)
+            if not exist_check:
+                db.c.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
+                             "agg_dmg, alert_flag, guild_id) VALUES (%d,5,5,5,5,0,0,0,%d)", (member.id, ctx.guild.id))
+                await ctx.send("Player Added")
+            else:
+                await ctx.send("Player is already in the database for this server. Please remove them first.")
 
     @commands.command()
     async def set_bp(self, ctx, member: discord.Member, value):
@@ -104,24 +81,16 @@ class BnW(commands.Cog):
         NOTE: This does not check BP max values, so through this command one may exceed BP limits.
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET bp = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
+            if value:
+                db.c.execute("UPDATE Characters SET bp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
+                await ctx.send("Value updated.")
 
     @commands.command()
     async def set_bp_max(self, ctx, member: discord.Member, value):
@@ -130,23 +99,14 @@ class BnW(commands.Cog):
         Syntax: $set_bp_max [member] [value]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET bp_max = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET bp_max = ? WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("UPDATE Characters SET bp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -157,23 +117,14 @@ class BnW(commands.Cog):
         NOTE: This does not check WP max values, so through this command one may exceed WP limits.
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET wp = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET wp = ? WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("UPDATE Characters SET wp = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -183,23 +134,14 @@ class BnW(commands.Cog):
         Syntax: $set_wp_max [member] [value]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET wp_max = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET wp_max = ? WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("UPDATE Characters SET wp_max = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -209,23 +151,14 @@ class BnW(commands.Cog):
         Syntax: $set_agg_dmg [member] [value]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET agg_dmg = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET agg_dmg = ? WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("UPDATE Characters SET agg_dmg = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -235,25 +168,15 @@ class BnW(commands.Cog):
         Syntax: $set_bp_upkeep [member] [value]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (value, member.id,)
-            c.execute("UPDATE BnW SET upkeep = ? WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("UPDATE Characters SET upkeep = %d WHERE player_id = %d AND guild_id = %d", (value, member.id, guild.get("id")))
             await ctx.send("Value updated.")
-        elif auth_nh:
-            lister = (value, member.id,)
-            c.execute("UPDATE NHBnW SET upkeep = ? WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-
 
     @commands.command()
     async def check_stats(self, ctx, *, member: discord.Member = 0):
@@ -263,34 +186,23 @@ class BnW(commands.Cog):
         Syntax: $check_stats / $check_stats [member]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            if member == 0:
-                global stats_member
-                stats_member = ctx.author
-            else:
-                stats_member = member
-        elif auth_nh:
             if member == 0:
                 stats_member = ctx.author
             else:
                 stats_member = member
         else:
             stats_member = ctx.author
-        lister = (stats_member.id,)
-        if ctx.guild.id == config.GUILD_ID:
-            c.execute("SELECT * FROM BnW WHERE player_id = ?", lister)
-        elif ctx.guild.id == config.GUILD_NH:
-            c.execute("SELECT * FROM NHBnW WHERE player_id = ?", lister)
-        data = c.fetchone()
-        await ctx.author.send(f"--Stats for {stats_member.mention}--\n\nBlood Points: {data[1]}\nBlood Point Cap: {data[2]}\nWillpower: {data[3]}\nWillpower Cap: {data[4]}\nAggravated Damage: {data[5]}\nMonthly Upkeep: {data[7]}")
+        player = db.get_player_info(ctx.guild.id, stats_member.id)
+        await ctx.author.send(f"--Stats for {stats_member.mention}--\n\nBlood Points: {player.get('bp')}\n\
+        Blood Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\n\
+        Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}")
 
     @commands.command()
     async def purge_bp_leavers(self, ctx):
@@ -298,68 +210,21 @@ class BnW(commands.Cog):
         Another ST only command. Goes through list of users and flags\n\
         ones to keep in the database from those still in server, purging the leavers.
         '''
+        authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
         if authorized:
-            c.execute("SELECT player_id FROM BnW")
-            db_list = list(c.fetchall())
-            for member in self.bot.get_guild(config.GUILD_ID).members:
-                if str(member.id) in str(db_list):
-                    if member in self.bot.get_guild(config.GUILD_ID).get_role(config.PLAYER_ROLE).members:
-                        lister = (member.id,)
-                        c.execute("UPDATE BnW SET active_toggle = 1 WHERE player_id = ?", lister)
-                        conn.commit()
-            c.execute("DELETE FROM BnW WHERE active_toggle = 0")
-            conn.commit()
-            c.execute("UPDATE BnW SET active_toggle = 0")
-            conn.commit()
+            player_list = db.get_all_players(ctx.guild.id)
+            for player in player_list:
+                d_player = ctx.guild.get_member(player.get("player_id"))
+                if d_player:
+                    if d_player in ctx.guild.get_role(guild.get("player_role")).members:
+                        db.c.execute("UPDATE Characters SET active_toggle = 1 WHERE id = %d", player.get("id"))
+            db.c.execute("DELETE FROM Characters WHERE active_toggle = 0 AND guild_id = %d", guild.get("id"))
+            db.c.execute("UPDATE Characters SET active_toggle = 0")
             await ctx.send("Table updated.")
-
-    @commands.command()
-    async def feed_bp(self, ctx, member: discord.Member, amount=0):
-        '''
-        Takes a specified amount of BP from the user of the command, and gives it to a specified user.
-        Syntax: $feed_bp [member] [amount]
-        '''
-        amount = int(amount)
-        if amount < 1:
-            await ctx.send("Error: You must feed at least 1 bp to feed someone.")
-        else:
-            lister = (ctx.author.id,)
-            c.execute("SELECT bp FROM BnW WHERE player_id = ?", lister)
-            user_pool = c.fetchone()
-            if int(user_pool[0]) < amount:
-                await ctx.send("Error: Cannot feed in excess of invoker's pool.")
-            else:
-                lister = (member.id,)
-                c.execute("SELECT bp, bp_max FROM BnW WHERE player_id = ?", lister)
-                data = c.fetchone()
-                target_bp = int(data[0])
-                target_max = int(data[1])
-                if target_bp == target_max:
-                    await ctx.send("Error: Cannot feed target with full BP.")
-                else:
-                    hunger = target_max - target_bp
-                    if hunger < amount:
-                        listers = (target_max,member.id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
-                        new_user_pool = int(user_pool[0]) - hunger
-                        listers = (new_user_pool,ctx.author.id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
-                        await ctx.send(f"Successfully fed {member.mention} {hunger} blood points.")
-                    else:
-                        new_target_bp = target_bp - amount
-                        listers = (new_target_bp, member.id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
-                        new_user_pool = int(user_pool[0]) - amount
-                        listers = (new_user_pool, ctx.author.id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
-                        await ctx.send(f"Successfully fed <@{member.id}> {amount} blood points.")
 
     @commands.command()
     async def rm_player(self, ctx, member: discord.Member):
@@ -368,23 +233,14 @@ class BnW(commands.Cog):
         Syntax: $rm_player [member]
         '''
         authorized = False
-        auth_nh = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
-            elif config.NARRATOR_ROLE == role.id:
+            elif guild.get("narrator_id") == role.id:
                 authorized = True
-            elif config.ST_NH == role.id:
-                auth_nh = True
         if authorized:
-            lister = (member.id,)
-            c.execute("DELETE FROM BnW WHERE player_id = ?", lister)
-            conn.commit()
-            await ctx.send("Value updated.")
-        if auth_nh:
-            lister = (member.id,)
-            c.execute("DELETE FROM NHBnW WHERE player_id = ?", lister)
-            conn.commit()
+            db.c.execute("DELETE FROM Characters WHERE player_id = %d AND guild_id = %d", (member.id, guild.get("id")))
             await ctx.send("Value updated.")
 
     @commands.command()
@@ -394,17 +250,17 @@ class BnW(commands.Cog):
         who have 0 blood points.
         '''
         authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            if config.ST_ROLE == role.id:
+            if guild.get("st_id") == role.id:
                 authorized = True
         if authorized:
-            c.execute("SELECT player_id from BnW WHERE bp = 0")
-            player_list = c.fetchall()
+            db.c.execute("SELECT player_id from Characters WHERE bp = 0 AND guild_id = %d", guild.get("id"))
+            player_list = db.c.fetchall()
             i = 0
-            global zeros_message
             zeros_message = ""
             while i < len(player_list):
-                zeros_message += self.bot.get_guild(config.GUILD_ID).get_member(int(player_list[i][0])).display_name + "\n"
+                zeros_message += ctx.guild.get_member(int(player_list[i][0])).display_name + "\n"
                 i += 1
             await ctx.author.send(f"Players with 0 Blood Points:\n{zeros_message}")
         else:
@@ -419,15 +275,9 @@ class BnW(commands.Cog):
         [+] STs and Narrators - $bp [user] checks their BP and DMs you, $bp [user] [value] works similarly.
         '''
         if arg1 == "none":
-            lister = (ctx.author.id,)
-            if ctx.guild.id == config.GUILD_ID:
-                c.execute("SELECT bp FROM BnW WHERE player_id = ?", lister)
-            elif ctx.guild.id == config.GUILD_NH:
-                c.execute("SELECT bp FROM NHBnW WHERE player_id = ?", lister)
-            data = c.fetchone()
-            await ctx.author.send(f"{ctx.author.mention}'s Blood Points: {data[0]}")
+            player = db.get_player_info(ctx.guild.id, ctx.author.id)
+            await ctx.author.send(f"{ctx.author.mention}'s Blood Points: {player.get('bp')}")
         else:
-            global user_id
             user_id = None
             try:
                 arg1 = int(arg1)
@@ -435,16 +285,12 @@ class BnW(commands.Cog):
                     await ctx.send("Error: Cannot spend negative BP.")
                 elif arg1 < 100:
                     mod = arg1
-                    lister = (ctx.author.id,)
-                    c.execute("SELECT bp FROM BnW WHERE player_id = ?", lister)
-                    data = c.fetchone()
-                    if mod > int(data[0]):
+                    player = db.get_player_info(ctx.guild.id, ctx.author.id)
+                    if mod > player.get("bp"):
                         await ctx.send("Error: Cannot spend BP in excess of pool.")
                     else:
-                        mod = int(data[0]) - mod
-                        listers = (mod, ctx.author.id,)
-                        c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                        conn.commit()
+                        mod = player.get("bp") - mod
+                        db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get("player_id")))
                         await ctx.send("Values updated.")
                 else:
                     user_id = arg1
@@ -459,33 +305,28 @@ class BnW(commands.Cog):
                     await ctx.send("Error: Invalid syntax.")
             if user_id is not None:
                 authorized = False
+                guild = db.get_guild_info(ctx.guild.id)
                 for role in ctx.author.roles:
-                    if config.ST_ROLE == role.id:
+                    if guild.get("st_id") == role.id:
                         authorized = True
-                    elif config.NARRATOR_ROLE == role.id and ctx.channel == self.bot.get_channel(config.COMMANDS_CHAN):
+                    elif guild.get("narrator_id") == role.id:
                         authorized = True
                 if authorized:
                     if arg2 == "none":
-                        lister = (user_id,)
-                        c.execute("SELECT bp FROM BnW WHERE player_id = ?", lister)
-                        data = c.fetchone()
-                        await ctx.author.send(f"{self.bot.get_user(user_id).mention}'s Blood Points: {data[0]}")
+                        player = db.get_player_info(ctx.guild.id, user_id)
+                        await ctx.author.send(f"{self.bot.get_user(user_id).mention}'s Blood Points: {player.get('bp')}")
                     else:
                         try:
                             mod = int(arg2)
                             if mod < 0:
                                 await ctx.send("Error: Cannot spend negative BP.")
                             else:
-                                lister = (user_id,)
-                                c.execute("SELECT bp FROM BnW WHERE player_id = ?", lister)
-                                data = c.fetchone()
-                                if mod > int(data[0]):
+                                player = db.get_player_info(ctx.guild.id, user_id)
+                                if mod > player.get('bp'):
                                     await ctx.send("Error: Cannot spend BP in excess of pool.")
                                 else:
-                                    mod = int(data[0]) - mod
-                                    listers = (mod, user_id,)
-                                    c.execute("UPDATE BnW SET bp = ? WHERE player_id = ?", listers)
-                                    conn.commit()
+                                    mod = player.get('bp') - mod
+                                    db.c.execute("UPDATE Characters SET bp = %d WHERE id = %d", (mod, player.get('id')))
                                     await ctx.send("Values updated.")
                         except ValueError:
                             await ctx.send("Error: Invalid syntax.")
@@ -499,12 +340,9 @@ class BnW(commands.Cog):
         [+] STs and Narrators - $wp [user] checks their WP and DMs you, $wp [user] [value] works similarly.
         '''
         if arg1 == "none":
-            lister = (ctx.author.id,)
-            c.execute("SELECT wp FROM BnW WHERE player_id = ?", lister)
-            data = c.fetchone()
-            await ctx.author.send(f"{ctx.author.mention}'s Willpower: {data[0]}")
+            player = db.get_player_info(ctx.guild.id, ctx.author.id)
+            await ctx.author.send(f"{ctx.author.mention}'s Willpower: {player.get('wp')}")
         else:
-            global user_id
             user_id = None
             try:
                 arg1 = int(arg1)
@@ -513,15 +351,12 @@ class BnW(commands.Cog):
                 elif arg1 < 100:
                     mod = arg1
                     lister = (ctx.author.id,)
-                    c.execute("SELECT wp FROM BnW WHERE player_id = ?", lister)
-                    data = c.fetchone()
-                    if mod > int(data[0]):
+                    player = db.get_player_info(ctx.guild.id, ctx.author.id)
+                    if mod > player.get('wp'):
                         await ctx.send("Error: Cannot spend WP in excess of pool.")
                     else:
-                        mod = int(data[0]) - mod
-                        listers = (mod, ctx.author.id,)
-                        c.execute("UPDATE BnW SET wp = ? WHERE player_id = ?", listers)
-                        conn.commit()
+                        mod = player.get('wp') - mod
+                        db.c.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
                         await ctx.send("Values updated.")
                 else:
                     user_id = arg1
@@ -536,33 +371,28 @@ class BnW(commands.Cog):
                     await ctx.send("Error: Invalid syntax.")
             if user_id is not None:
                 authorized = False
+                guild = db.get_guild_info(ctx.guild.id)
                 for role in ctx.author.roles:
-                    if config.ST_ROLE == role.id:
+                    if guild.get("st_id") == role.id:
                         authorized = True
-                    elif config.NARRATOR_ROLE == role.id and ctx.channel == self.bot.get_channel(config.COMMANDS_CHAN):
+                    elif guild.get("narrator_id") == role.id:
                         authorized = True
                 if authorized:
                     if arg2 == "none":
-                        lister = (user_id,)
-                        c.execute("SELECT wp FROM BnW WHERE player_id = ?", lister)
-                        data = c.fetchone()
-                        await ctx.author.send(f"{self.bot.get_user(user_id).mention}'s Willpower: {data[0]}")
+                        player = db.get_player_info(ctx.guild.id, user_id)
+                        await ctx.author.send(f"{self.bot.get_user(user_id).mention}'s Willpower: {player.get('wp')}")
                     else:
                         try:
                             mod = int(arg2)
                             if mod < 0:
                                 await ctx.send("Error: Cannot spend negative WP.")
                             else:
-                                lister = (user_id,)
-                                c.execute("SELECT wp FROM BnW WHERE player_id = ?", lister)
-                                data = c.fetchone()
-                                if mod > int(data[0]):
+                                player = db.get_player_info(ctx.guild.id, user_id)
+                                if mod > player.get('wp'):
                                     await ctx.send("Error: Cannot spend WP in excess of pool.")
                                 else:
-                                    mod = int(data[0]) - mod
-                                    listers = (mod, user_id,)
-                                    c.execute("UPDATE BnW SET wp = ? WHERE player_id = ?", listers)
-                                    conn.commit()
+                                    mod = player.get('wp') - mod
+                                    db.c.execute("UPDATE Characters SET wp = %d WHERE id = %d", (mod, player.get('id')))
                                     await ctx.send("Values updated.")
                         except ValueError:
                             await ctx.send("Error: Invalid syntax.")

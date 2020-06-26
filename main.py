@@ -6,18 +6,19 @@
 # Finally, under the @bot.event decorator, it produces a greeting message,
 # both to Discord and to the console and initializes the bot
 from discord.ext import commands
-import config
+import lib.dbman as db
 import discord
-from lib.dbman import c, conn
 
-bot = commands.Bot(command_prefix=config.COMMAND_PREFIX, description="Dracula the Discord Daemon")
+############################################################
+# Removed config file, implemented constants in its place. #
+############################################################
+DISCORD_API_KEY = "NTc1MDk0NjEyMzEwMzYwMDg2.XPyMmg.bBhJKtQ9-PrsDTuS1hyoBvnJHxM"
+
+bot = commands.Bot(command_prefix=db.get_prefix, description="Dracula the Discord Daemon")
 
 initial_extensions = ["cogs.dice",
                       "cogs.schedule",
-                      "cogs.faq",
-                      "cogs.whois",
                       "cogs.bnw",
-                      "cogs.ar",
                       "cogs.misc"]
 
 if __name__ == "__main__":
@@ -28,16 +29,9 @@ if __name__ == "__main__":
 @bot.event
 async def on_ready():
     print(f"\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n")
-    await bot.change_presence(activity=discord.Game(name="Crossroads: A Vampire Chronicle"))
+    await bot.change_presence(activity=discord.Game(name="Vampire: The Masquerade"))
     print(f"Successfully logged in and booted!")
-    c.execute("CREATE TABLE IF NOT EXISTS Faq (Listing text NOT NULL, Contents text)")
-    c.execute("CREATE TABLE IF NOT EXISTS Ar (Listing text NOT NULL, Contents text)")
-    c.execute("CREATE TABLE IF NOT EXISTS NHBnW (player_id int, bp int, bp_max int, wp int, wp_max int, agg_dmg int, active_toggle bit, upkeep int, upkeep_date text, alert_flag bit)")
-    c.execute("CREATE TABLE IF NOT EXISTS SecretSanta (sender_id int, receiver_id int)")
-    c.execute("CREATE TABLE IF NOT EXISTS Auction (auctioned int, bidder int, bid int, active bit)")
-    c.execute("CREATE TABLE IF NOT EXISTS Reports (id INTEGER PRIMARY KEY, uid int, contents text, datetime text)")
-    c.execute("CREATE TABLE IF NOT EXISTS Feedback (uid int)")
-    conn.commit()
-    await bot.get_channel(config.BOT_ANNOUNCEMENTS_CHANNEL).send("Drac's back, baby!")
+    for guild in db.get_guild_list():
+        await bot.get_channel(db.get_guild_info(guild).get("announcements_channel")).send("Drac's back, baby!")
 
-bot.run(config.DISCORD_API_KEY, bot=True, reconnect=True)
+bot.run(DISCORD_API_KEY, bot=True, reconnect=True)
