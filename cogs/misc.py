@@ -125,7 +125,7 @@ class Misc(commands.Cog):
         guild = db.get_guild_info(ctx.guild.id)
         counter = guild.get("stakes")
         db.execute("UPDATE Config SET stakes = %s WHERE id = %s", (counter + 1, guild.get("id")))
-        await ctx.send(f"*Gets frozen in place.* **Dracula has been staked: {counter} times!**")
+        await ctx.send(f"*Gets frozen in place.* **Dracula has been staked: {counter + 1} times!**")
 
     '''@commands.command()
     async def caption(self, ctx, member: discord.Member, *words):
