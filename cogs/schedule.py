@@ -27,11 +27,10 @@ class Time(commands.Cog):
             cur_date = time.ic_date(guild_id)
             guild = db.get_guild_info(guild_id)
             last_date = guild.get("last_date")
-            g_id = guild.get("id")
             if cur_date != last_date:
                 channel = self.bot.get_channel(guild.get("date_chan"))
                 await channel.send("The date is now: " + cur_date + ". Your hunger grows.")
-                player_list = db.get_all_players(g_id)
+                player_list = db.get_all_players(guild_id)
                 for player in player_list:
                     current_bp = player.get("bp") - 1
                     if current_bp >= 0:
