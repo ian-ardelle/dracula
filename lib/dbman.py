@@ -22,9 +22,6 @@ def execute(query):
     c.execute(query)
 
 
-
-
-
 def get_prefix(bot, message):
     default_prefix = "!"
     guild_id = message.guild.id
@@ -38,7 +35,7 @@ def get_guild_list():
 
 
 def get_guild_info(guild_id):
-    c.execute("SELECT * FROM Config WHERE guild_id = %s", guild_id)
+    c.execute("SELECT * FROM Config WHERE guild_id = %s", (guild_id,))
     guild_info = c.fetchone()
     ic_start = datetime(int(guild_info[4][0:4]), int(guild_info[4][5:7]), int(guild_info[4][8:10]), int(guild_info[4][11:13]), int(guild_info[4][14:16]))
     irl_start = datetime(int(guild_info[5][0:4]), int(guild_info[5][5:7]), int(guild_info[5][8:10]), int(guild_info[5][11:13]), int(guild_info[5][14:16]))
@@ -52,7 +49,7 @@ def get_guild_info(guild_id):
 
 def get_player_info(guild_id, player_id):
     g_id = get_guild_info(guild_id).get("id")
-    c.execute("SELECT * FROM Characters WHERE guild_id = %s AND player_id = %s", g_id, player_id)
+    c.execute("SELECT * FROM Characters WHERE guild_id = %s AND player_id = %s", (g_id, player_id))
     player = c.fetchone()
     formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4],
                             wp=player[5], upkeep=player[6], upkeep_date=player[7], guild_id=player[8])
@@ -60,7 +57,8 @@ def get_player_info(guild_id, player_id):
 
 
 def get_all_players(guild_id):
-    c.execute("SELECT * FROM Characters")
+    guild = get_guild_info(guild_id)
+    c.execute("SELECT * FROM Characters WHERE guild_id = %s", (guild.get('id'),))
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
