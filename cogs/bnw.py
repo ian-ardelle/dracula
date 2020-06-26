@@ -15,12 +15,15 @@ class BnW(commands.Cog):
     async def blood_bag(self):
         for guild in db.get_guild_list():
             guild = db.get_guild_info(guild[0])
-            bb_members = self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")).members
+            bb_role = self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id"))
+            print(bb_role)
+            print(guild.get('bb_id'))
+            bb_members = bb_role.members
             if bb_members is not None:
                 for member in bb_members:
                     player = db.get_player_info(guild.get("guild_id"), member.id)
                     if player.get("bp") + 1 <= player.get("bp_max"):
-                        await self.bot.get_guild(guild.get("guild_id")).get_member(member.id).remove_roles(self.bot.get_guild(guild.get("guild_id")).get_role(guild.get("bb_id")))
+                        await self.bot.get_guild(guild.get("guild_id")).get_member(member.id).remove_roles(bb_role)
                         new_bp = player.get("bp") + 1
                         db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (new_bp, player.get("id")))
 
