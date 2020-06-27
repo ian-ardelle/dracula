@@ -48,8 +48,9 @@ class BnW(commands.Cog):
         if authorized:
             for member in ctx.guild.members:
                 if guild.get("player_role") in member.roles:
-                    exist_check = db.get_player_info(ctx.guild.id, member.id)
-                    if not exist_check:
+                    try:
+                        exist_check = db.get_player_info(ctx.guild.id, member.id)
+                    except TypeError:
                         db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
                                      "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, guild.get('id')))
             await ctx.send("Table populated.")
@@ -67,8 +68,9 @@ class BnW(commands.Cog):
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            exist_check = db.get_player_info(ctx.guild.id, member.id)
-            if not exist_check:
+            try:
+                exist_check = db.get_player_info(ctx.guild.id, member.id)
+            except TypeError:
                 db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep, agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, guild.get('id')))
                 await ctx.send("Player Added")
             else:
