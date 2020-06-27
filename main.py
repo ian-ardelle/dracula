@@ -15,7 +15,9 @@ import discord
 
 DISCORD_API_KEY = "NTc1MDk0NjEyMzEwMzYwMDg2.XPyMmg.bBhJKtQ9-PrsDTuS1hyoBvnJHxM"
 
-bot = commands.Bot(command_prefix=str(db.get_prefix), description="Dracula the Discord Daemon")
+
+bot = commands.Bot(command_prefix="$", description="Dracula the Discord Daemon")
+
 
 initial_extensions = ["cogs.dice",
                       "cogs.schedule",
