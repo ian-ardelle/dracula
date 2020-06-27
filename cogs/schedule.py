@@ -24,10 +24,11 @@ class Time(commands.Cog):
     async def daily_commands(self):
         for guild_id in db.get_guild_list():
             guild_id = guild_id[0]
-            cur_date = time.ic_date_dt(guild_id)
+            cur_date_dt = time.ic_date_dt(guild_id)
             guild = db.get_guild_info(guild_id)
             last_date = guild.get("last_date")
-            if cur_date != last_date:
+            if cur_date_dt != last_date:
+                cur_date = time.ic_date(guild_id)
                 channel = self.bot.get_channel(guild.get("date_chan"))
                 await channel.send("The date is now: " + cur_date + ". Your hunger grows.")
                 db.execute("UPDATE Config SET last_date = %s WHERE guild_id = %s", (cur_date.strftime("%Y:%m:%d"), guild_id))
