@@ -85,15 +85,12 @@ class BnW(commands.Cog):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            print(str(role.id) + "," + role.name)
             if guild.get("st_id") == role.id:
                 authorized = True
             elif guild.get("narrator_id") == role.id:
                 authorized = True
         if authorized:
-            print("hi!")
             if value:
-                print("hello there!")
                 db.execute("UPDATE Characters SET bp = %s WHERE player_id = %s AND guild_id = %s", (int(value), member.id, guild.get("id")))
                 await ctx.send("Value updated.")
 
