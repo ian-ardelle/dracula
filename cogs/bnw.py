@@ -85,7 +85,7 @@ class BnW(commands.Cog):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
-            print(role.id + "," + role.name)
+            print(str(role.id) + "," + role.name)
             if guild.get("st_id") == role.id:
                 authorized = True
             elif guild.get("narrator_id") == role.id:
