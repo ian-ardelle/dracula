@@ -291,7 +291,7 @@ class BnW(commands.Cog):
                         await ctx.send("Error: Cannot spend BP in excess of pool.")
                     else:
                         mod = player.get("bp") - mod
-                        db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (mod, player.get("player_id")))
+                        db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (mod, player.get("id")))
                         await ctx.send("Values updated.")
                 else:
                     user_id = arg1
@@ -351,7 +351,6 @@ class BnW(commands.Cog):
                     await ctx.send("Error: Cannot spend negative WP.")
                 elif arg1 < 100:
                     mod = arg1
-                    lister = (ctx.author.id,)
                     player = db.get_player_info(ctx.guild.id, ctx.author.id)
                     if mod > player.get('wp'):
                         await ctx.send("Error: Cannot spend WP in excess of pool.")
