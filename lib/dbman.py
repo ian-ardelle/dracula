@@ -66,7 +66,6 @@ def get_all_players(guild_id):
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
-        formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4],
-                                wp=player[5], upkeep=player[6], upkeep_date=player[7], guild_id=player[8])
+        formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=player[7], agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
         formatted_player_list.append(formatted_player)
     return formatted_player_list
