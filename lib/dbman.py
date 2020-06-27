@@ -26,11 +26,11 @@ def execute(query, params=''):
     db.commit()
 
 
-def get_prefix(bot, message):
-    default_prefix = "!"
-    guild_id = message.guild.id
-    guild = get_guild_info(guild_id)
-    return guild.get('prefix', default_prefix)
+# def get_prefix(bot, message):
+#    default_prefix = "!"
+#    guild_id = message.guild.id
+#    guild = get_guild_info(guild_id)
+#    return guild.get('prefix', default_prefix)
 
 
 def get_guild_list():
@@ -48,7 +48,7 @@ def get_guild_info(guild_id):
                 st_alerts_chan=guild_info[9], announcements_chan=guild_info[10], st_id=guild_info[11],
                 narrator_id=guild_info[12], bb_id=guild_info[13], player_role=guild_info[14],
                 stakes=guild_info[15], exploding_toggle=guild_info[16],
-                last_date=datetime.strptime(str(guild_info[17]), "%Y:%m:%d:%H:%M:%S"))
+                last_date=datetime.strptime(str(guild_info[17]), "%Y:%m:%d"))
 
 
 def get_player_info(guild_id, player_id):

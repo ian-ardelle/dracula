@@ -30,6 +30,7 @@ class Time(commands.Cog):
             if cur_date != last_date:
                 channel = self.bot.get_channel(guild.get("date_chan"))
                 await channel.send("The date is now: " + cur_date + ". Your hunger grows.")
+                db.execute("UPDATE Config SET last_date = %s WHERE guild_id = %s", (cur_date.strftime("%Y:%m:%d"), guild_id))
                 player_list = db.get_all_players(guild_id)
                 for player in player_list:
                     current_bp = player.get("bp") - 1
