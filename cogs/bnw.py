@@ -51,7 +51,7 @@ class BnW(commands.Cog):
                     exist_check = db.get_player_info(ctx.guild.id, member.id)
                     if not exist_check:
                         db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
-                                     "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, ctx.guild.id))
+                                     "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, guild.get('id')))
             await ctx.send("Table populated.")
 
     @commands.command()
@@ -69,8 +69,7 @@ class BnW(commands.Cog):
         if authorized:
             exist_check = db.get_player_info(ctx.guild.id, member.id)
             if not exist_check:
-                db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
-                             "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, ctx.guild.id))
+                db.execute("INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep, agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)", (member.id, guild.get('id')))
                 await ctx.send("Player Added")
             else:
                 await ctx.send("Player is already in the database for this server. Please remove them first.")
