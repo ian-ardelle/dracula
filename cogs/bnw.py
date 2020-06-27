@@ -202,9 +202,7 @@ class BnW(commands.Cog):
         else:
             stats_member = ctx.author
         player = db.get_player_info(ctx.guild.id, stats_member.id)
-        await ctx.author.send(f"--Stats for {stats_member.mention}--\n\nBlood Points: {player.get('bp')}\n\
-        Blood Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\n\
-        Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}")
+        await ctx.author.send(f"--Stats for {stats_member.mention} ON {ctx.guild.name}--\n\nBlood Points: {player.get('bp')}\nBlood Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\nAggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}")
 
     @commands.command()
     async def purge_bp_leavers(self, ctx):
