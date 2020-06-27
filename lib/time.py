@@ -15,6 +15,13 @@ def ic_date(guild_id):
     return utcICCurrent.astimezone(time_info.get("tz")).strftime("%A, %B %d, %Y")
 
 
+def ic_date_dt(guild_id):
+    time_info = db.get_guild_info(guild_id)
+    utc_now = utc.localize(datetime.utcnow())
+    utc_ic = utc.localize(time_info.get("ic_start")) + ((utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient"))
+    return utc_ic.astimezone(time_info.get("tz")).date()
+
+
 def ic_time(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())

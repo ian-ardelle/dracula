@@ -24,7 +24,7 @@ class Time(commands.Cog):
     async def daily_commands(self):
         for guild_id in db.get_guild_list():
             guild_id = guild_id[0]
-            cur_date = time.ic_date(guild_id)
+            cur_date = time.ic_date_dt(guild_id)
             guild = db.get_guild_info(guild_id)
             last_date = guild.get("last_date")
             if cur_date != last_date:
