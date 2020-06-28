@@ -30,7 +30,7 @@ class Time(commands.Cog):
             player_list = db.get_all_players(guild_id)
             for player in player_list:
                 if player.get("bp") == 0 and player.get("alert_flag") == 0:
-                    db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", player.get("id"))
+                    db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", (player.get("id"),))
                     try:
                         guild_name = self.bot.get_guild(guild_id).name
                         await self.bot.get_user(player.get("player_id")).send(f"Your character is at 0 BP due to "
