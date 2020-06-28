@@ -33,12 +33,17 @@ class Time(commands.Cog):
                     db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", player.get("id"))
                     try:
                         guild_name = self.bot.get_guild(guild_id).name
-                        await self.bot.get_guild(guild_id).get_member(player.get("player_id")).send(
-                            f"Your character is at 0 BP due to infrequent feeding or inactivity. If your \
-                                        character remains on this list too long you risk being removed from {guild_name}. \
-                                        When you log in please fill free to roll as many time as are necessary to fill \
-                                        your character's blood pool. You may then jump into play without accounting as the \
-                                        feeding occurred while you were offline.")
+                        await self.bot.get_user(player.get("player_id")).send(f"Your character is at 0 BP due to "
+                                                                              f"infrequent feeding or inactivity. If "
+                                                                              f"your character remains on this list "
+                                                                              f"too long you risk being removed from "
+                                                                              f"{guild_name}. When you log in please "
+                                                                              f"fill free to roll as many time as are "
+                                                                              f"necessary to fill your character's "
+                                                                              f"blood pool. You may then jump into "
+                                                                              f"play without accounting as the "
+                                                                              f"feeding occurred while you were "
+                                                                              f"offline.")
                     except KeyError:
                         continue
                 if player.get("alert_flag") == 1 and player.get("bp") > 0:
