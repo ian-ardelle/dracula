@@ -34,6 +34,7 @@ class Time(commands.Cog):
                 db.execute("UPDATE Config SET last_date = %s WHERE guild_id = %s", (cur_date_dt.strftime("%Y:%m:%d"), guild_id))
                 player_list = db.get_all_players(guild_id)
                 for player in player_list:
+                    await self.bot.get_guild(guild_id).get_member(93363252540473344).send(player.get('id'))
                     current_bp = player.get("bp") - 1
                     if current_bp >= 0:
                         db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (current_bp, player.get("id")))
