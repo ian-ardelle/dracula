@@ -63,19 +63,20 @@ class Time(commands.Cog):
                     if current_wp < current_wp_max:
                         current_wp += 1
                         db.execute("UPDATE Characters SET wp = %s WHERE id = %s", (current_wp, player.get("id")))
-                    if player.get("upkeep_date") != ' ':
-                        old_upkeep = player.get("upkeep_date")
-                    else:
-                        old_upkeep = ''
-                    if not old_upkeep:
-                        ctime = time.ic_datetime_utc(guild_id)
-                        old_upkeep = ctime
-                    if old_upkeep < ctime and player.get("upkeep") > 0 and player.get("bp") > 0:
-                        new_bp = player.get("bp") - 1
-                        upkeep_datetime = old_upkeep + timedelta(
-                            days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
-                        db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
-                                   (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
+                    if player.get('upkeep') > 0:
+                        if player.get("upkeep_date") != ' ':
+                            old_upkeep = player.get("upkeep_date")
+                        else:
+                            old_upkeep = ''
+                        if not old_upkeep:
+                            ctime = time.ic_datetime_utc(guild_id)
+                            old_upkeep = ctime
+                        if old_upkeep < ctime:
+                            new_bp = player.get("bp") - 1
+                            upkeep_datetime = old_upkeep + timedelta(
+                                days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
+                            db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
+                                       (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
 
     @daily_commands.before_loop
     async def before_alert(self):
