@@ -41,7 +41,7 @@ class Time(commands.Cog):
                     current_wp_max = player.get("wp_max")
                     if current_wp < current_wp_max:
                         current_wp += 1
-                        db.execute("UPDATE Characters SET wp = %s WHERE player_id = %s", (current_wp, player.get("id")))
+                        db.execute("UPDATE Characters SET wp = %s WHERE id = %s", (current_wp, player.get("id")))
                     if player.get("upkeep_date") != '':
                         old_upkeep = player.get("upkeep_date")
                     else:
