@@ -48,7 +48,7 @@ class Time(commands.Cog):
                         continue
                 if player.get("alert_flag") == 1 and player.get("bp") > 0:
                     print(player.get('id'))
-                    db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
+                    db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", (player.get("id"),))
             if cur_date_dt != last_date:
                 cur_date = time.ic_date(guild_id)
                 channel = self.bot.get_guild(guild_id).get_channel(guild.get("date_chan"))
