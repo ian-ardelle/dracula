@@ -46,7 +46,7 @@ class Time(commands.Cog):
                                                                               f"offline.")
                     except KeyError:
                         continue
-                if player.get("alert_flag") == 1 and player.get("bp") > 0:
+                elif player.get("alert_flag") == 1 and player.get("bp") > 0:
                     db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
             if cur_date_dt != last_date:
                 cur_date = time.ic_date(guild_id)
@@ -74,7 +74,7 @@ class Time(commands.Cog):
                         new_bp = player.get("bp") - 1
                         upkeep_datetime = old_upkeep + timedelta(
                             days=db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep"))
-                        db.execute("UPDATE Characters SET upkeep_date = %s, bp = %s WHERE id = %s",
+                        db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
                                    (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
 
     @daily_commands.before_loop
