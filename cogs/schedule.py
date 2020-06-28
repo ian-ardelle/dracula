@@ -46,7 +46,7 @@ class Time(commands.Cog):
                                                                               f"offline.")
                     except KeyError:
                         continue
-                elif player.get("alert_flag") == 1 and player.get("bp") > 0:
+                if player.get("alert_flag") == 1 and player.get("bp") > 0:
                     db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", player.get("id"))
             if cur_date_dt != last_date:
                 cur_date = time.ic_date(guild_id)
