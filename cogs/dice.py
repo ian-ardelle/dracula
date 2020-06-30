@@ -145,8 +145,9 @@ class Dice(commands.Cog):
                     ss -= fail
                     tens -= fail
                     while tens > 0:
+                        explosion = []
                         for i in range(tens):
-                            explosion = [random.randint(1, 10)]
+                            explosion.append(random.randint(1, 10))
                         await ctx.send(explosion)
                         ten = 0
                         for roll in explosion:
@@ -168,6 +169,7 @@ class Dice(commands.Cog):
                         result = str(ss) + " Successes! | Reason: " + str(reason_string)
             elif guild.get("exploding_toggle") == 0:
                 ss += tens
+                ss -= fail
                 if ss <= 0:
                     ss = wp
                 else:
