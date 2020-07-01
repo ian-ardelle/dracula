@@ -8,6 +8,11 @@ from PIL import Image
 from datetime import datetime, timedelta
 
 
+def mkdir(directory):
+    if not directory.exists:
+        directory.mkdir()
+
+
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -27,9 +32,10 @@ class Misc(commands.Cog):
         guild_name = ctx.guild.name
         chan_name = ctx.guild.get_channel(int(cid)).name
         await ctx.send("Archiving channel...")
+        working_dir = pathlib.Path.cwd() / "backups" / guild_name
+        mkdir(working_dir)
         working_dir = pathlib.Path.cwd() / "backups" / guild_name / chan_name
-        if not working_dir.exists():
-            working_dir.mkdir()
+        mkdir(working_dir)
         working_file = working_dir / "log.txt"
         f = open(working_file, "w")
         mychan = ctx.guild.get_channel(int(cid))
@@ -64,16 +70,16 @@ class Misc(commands.Cog):
                 if chan == ctx.channel:
                     continue
                 else:
+                    guild_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name
+                    mkdir(guild_dir)
                     chan_name = chan.name
                     if chan.category:
                         category_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name
-                        if not category_dir.exists():
-                            category_dir.mkdir()
+                        mkdir(category_dir)
                         working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name / chan_name
                     else:
                         working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan_name
-                    if not working_dir.exists():
-                        working_dir.mkdir()
+                    mkdir(working_dir)
                     working_file = working_dir / "log.txt"
                     f = open(working_file, "w")
                     counter = 0
