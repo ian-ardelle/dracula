@@ -55,7 +55,9 @@ def get_player_info(guild_id, player_id):
     g_id = get_guild_info(guild_id).get("id")
     c.execute("SELECT * FROM Characters WHERE guild_id = %s AND player_id = %s", (g_id, player_id))
     player = c.fetchone()
-    formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=player[7], agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
+    upkeep_dt = datetime(int(player[7][0:4]), int(player[7][5:7]), int(player[7][8:10]), int(player[7][11:13]),
+                         int(player[7][14:16], int(player[7][17:19])))
+    formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=upkeep_dt, agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
     return formatted_player
 
 
@@ -65,6 +67,7 @@ def get_all_players(guild_id):
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
-        formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=player[7], agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
+        upkeep_dt = datetime(int(player[7][0:4]), int(player[7][5:7]), int(player[7][8:10]), int(player[7][11:13]), int(player[7][14:16], int(player[7][17:19])))
+        formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=upkeep_dt, agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
         formatted_player_list.append(formatted_player)
     return formatted_player_list
