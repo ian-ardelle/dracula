@@ -90,7 +90,7 @@ class Misc(commands.Cog):
                         f.write(
                             f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
                         counter += 1
-                    await ctx.send(f"Channel archived {counter} messages.")
+                    await ctx.send(f"Channel {chan_name} archived {counter} messages.")
                     f.close()
                     f = open(working_file, "r")
                     s = f.readlines()
@@ -100,7 +100,6 @@ class Misc(commands.Cog):
                     for item in s:
                         f.write(item)
                     f.close()
-                    await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
             await ctx.send("Server archive complete.")
 
     @commands.command()
