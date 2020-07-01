@@ -75,8 +75,7 @@ class Time(commands.Cog):
                                        (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
                         if old_upkeep < ctime:
                             new_bp = player.get("bp") - 1
-                            upkeep_datetime = old_upkeep + timedelta(
-                                days=(db.get_guild_info(guild_id).get("time_coefficient") / player.get("upkeep")))
+                            upkeep_datetime = old_upkeep + timedelta(days=db.get_guild_info(guild_id).get("date_coefficient") / player.get("upkeep"))
                             db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
                                        (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
 
