@@ -64,12 +64,13 @@ class Time(commands.Cog):
                         current_wp += 1
                         db.execute("UPDATE Characters SET wp = %s WHERE id = %s", (current_wp, player.get("id")))
                     if player.get('upkeep') > 0:
+                        print(player.get('player_id'))
                         time.ic_datetime_utc(guild_id)
                         ctime = time.ic_datetime_utc(guild_id)
                         if player.get("upkeep_date") != ' ':
                             old_upkeep = player.get("upkeep_date")
                         else:
-                            print(player.get('player_id'))
+                            print("Stage 2 Hit")
                             old_upkeep = time.ic_datetime_utc(guild_id)
                             db.execute("UPDATE Characters SET upkeep_dt = %s WHERE id = %s",
                                        (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
