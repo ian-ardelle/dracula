@@ -67,8 +67,6 @@ class Time(commands.Cog):
                         if player.get("upkeep_date") != ' ':
                             old_upkeep = player.get("upkeep_date")
                         else:
-                            old_upkeep = ''
-                        if not old_upkeep:
                             ctime = time.ic_datetime_utc(guild_id)
                             old_upkeep = ctime
                         if old_upkeep < ctime:
