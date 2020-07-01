@@ -48,6 +48,25 @@ class Time(commands.Cog):
                         continue
                 if player.get("alert_flag") == 1 and player.get("bp") > 0:
                     db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", (player.get("id"),))
+
+                if player.get('upkeep') > 0:
+                    print(player.get('player_id'))
+                    time.ic_datetime_utc(guild_id)
+                    ctime = time.ic_datetime_utc(guild_id)
+                    if player.get("upkeep_date") != ' ':
+                        old_upkeep = player.get("upkeep_date")
+                    else:
+                        print("Stage 2 Hit")
+                        old_upkeep = time.ic_datetime_utc(guild_id)
+                        db.execute("UPDATE Characters SET upkeep_dt = %s WHERE id = %s",
+                                   (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
+                    if old_upkeep < ctime:
+                        new_bp = player.get("bp") - 1
+                        upkeep_datetime = old_upkeep + timedelta(
+                            days=db.get_guild_info(guild_id).get("date_coefficient") / player.get("upkeep"))
+                        db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
+                                   (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
+
             if cur_date_dt != last_date:
                 cur_date = time.ic_date(guild_id)
                 channel = self.bot.get_guild(guild_id).get_channel(guild.get("date_chan"))
@@ -63,22 +82,6 @@ class Time(commands.Cog):
                     if current_wp < current_wp_max:
                         current_wp += 1
                         db.execute("UPDATE Characters SET wp = %s WHERE id = %s", (current_wp, player.get("id")))
-                    if player.get('upkeep') > 0:
-                        print(player.get('player_id'))
-                        time.ic_datetime_utc(guild_id)
-                        ctime = time.ic_datetime_utc(guild_id)
-                        if player.get("upkeep_date") != ' ':
-                            old_upkeep = player.get("upkeep_date")
-                        else:
-                            print("Stage 2 Hit")
-                            old_upkeep = time.ic_datetime_utc(guild_id)
-                            db.execute("UPDATE Characters SET upkeep_dt = %s WHERE id = %s",
-                                       (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
-                        if old_upkeep < ctime:
-                            new_bp = player.get("bp") - 1
-                            upkeep_datetime = old_upkeep + timedelta(days=db.get_guild_info(guild_id).get("date_coefficient") / player.get("upkeep"))
-                            db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
-                                       (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
 
     @daily_commands.before_loop
     async def before_alert(self):
