@@ -54,7 +54,7 @@ class Time(commands.Cog):
                     time.ic_datetime_utc(guild_id)
                     ctime = time.ic_datetime_utc(guild_id)
                     if player.get("upkeep_date") != ' ':
-                        old_upkeep = player.get("upkeep_date")
+                        old_upkeep = utc.localize(player.get("upkeep_date"))
                     else:
                         print("Stage 2 Hit")
                         old_upkeep = time.ic_datetime_utc(guild_id)

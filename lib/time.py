@@ -1,10 +1,7 @@
-from pytz import timezone
 import pytz
 from datetime import datetime
 import lib.dbman as db
 
-est = timezone('America/New_York')
-cst = timezone('America/Chicago')
 utc = pytz.utc
 
 
