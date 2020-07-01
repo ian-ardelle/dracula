@@ -56,7 +56,7 @@ def get_player_info(guild_id, player_id):
     c.execute("SELECT * FROM Characters WHERE guild_id = %s AND player_id = %s", (g_id, player_id))
     player = c.fetchone()
     if player[7] != ' ':
-        upkeep_dt = datetime(int(player[7][0:4]), int(player[7][5:7]), int(player[7][8:10]), int(player[7][11:13]), int(player[7][14:16], int(player[7][17:19])))
+        upkeep_dt = datetime(int(player[7][0:4]), int(player[7][5:7]), int(player[7][8:10]), int(player[7][11:13]), int(player[7][14:16]), int(player[7][17:19]))
     else:
         upkeep_dt = ' '
     formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=upkeep_dt, agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
@@ -71,7 +71,7 @@ def get_all_players(guild_id):
     for player in player_list:
         if player[7] != ' ':
             upkeep_dt = datetime(int(player[7][0:4]), int(player[7][5:7]), int(player[7][8:10]), int(player[7][11:13]),
-                                 int(player[7][14:16], int(player[7][17:19])))
+                                 int(player[7][14:16]), int(player[7][17:19]))
         else:
             upkeep_dt = ' '
         formatted_player = dict(id=player[0], player_id=player[1], bp_max=player[2], bp=player[3], wp_max=player[4], wp=player[5], upkeep=player[6], upkeep_date=upkeep_dt, agg_dmg=player[8], alert_flag=player[9], guild_id=player[10])
