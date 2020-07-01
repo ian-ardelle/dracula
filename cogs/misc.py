@@ -8,13 +8,6 @@ from PIL import Image
 from datetime import datetime, timedelta
 
 
-def mkdir(directory):
-    print("Check 1")
-    if not directory.exists:
-        directory.mkdir()
-        print("Check 2")
-
-
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -32,13 +25,14 @@ class Misc(commands.Cog):
     async def scrape(self, ctx, cid):
         counter = 0
         guild_name = ctx.guild.name
+        guild_dir = pathlib.Path.cwd() / "backups" / guild_name
+        if not guild_dir.exists():
+            guild_dir.mkdir()
         chan_name = ctx.guild.get_channel(int(cid)).name
         await ctx.send("Archiving channel...")
-        working_dir = pathlib.Path.cwd() / "backups" / guild_name
-        mkdir(working_dir)
         working_dir = pathlib.Path.cwd() / "backups" / guild_name / chan_name
-        mkdir(working_dir)
-        print("ChecK 3")
+        if not working_dir.exists():
+            working_dir.mkdir()
         working_file = working_dir / "log.txt"
         f = open(working_file, "w")
         mychan = ctx.guild.get_channel(int(cid))
@@ -69,20 +63,24 @@ class Misc(commands.Cog):
                 authorized = True
         if authorized:
             await ctx.send("Archiving server...")
+            guild_name = ctx.guild.name
+            guild_dir = pathlib.Path.cwd() / "archive" / guild_name
+            if not guild_dir.exists():
+                guild_dir.mkdir()
             for chan in ctx.guild.text_channels:
                 if chan == ctx.channel:
                     continue
                 else:
-                    guild_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name
-                    mkdir(guild_dir)
                     chan_name = chan.name
                     if chan.category:
                         category_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name
-                        mkdir(category_dir)
+                        if not category_dir.exists():
+                            category_dir.mkdir()
                         working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name / chan_name
                     else:
                         working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan_name
-                    mkdir(working_dir)
+                    if not working_dir.exists():
+                        working_dir.mkdir()
                     working_file = working_dir / "log.txt"
                     f = open(working_file, "w")
                     counter = 0
