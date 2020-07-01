@@ -9,8 +9,10 @@ from datetime import datetime, timedelta
 
 
 def mkdir(directory):
+    print("Check 1")
     if not directory.exists:
         directory.mkdir()
+        print("Check 2")
 
 
 class Misc(commands.Cog):
@@ -36,6 +38,7 @@ class Misc(commands.Cog):
         mkdir(working_dir)
         working_dir = pathlib.Path.cwd() / "backups" / guild_name / chan_name
         mkdir(working_dir)
+        print("ChecK 3")
         working_file = working_dir / "log.txt"
         f = open(working_file, "w")
         mychan = ctx.guild.get_channel(int(cid))
