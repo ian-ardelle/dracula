@@ -29,41 +29,45 @@ class Time(commands.Cog):
             last_date = guild.get("last_date")
             player_list = db.get_all_players(guild_id)
             for player in player_list:
-                if player.get("bp") == 0 and player.get("alert_flag") == 0:
-                    db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", (player.get("id"),))
-                    try:
-                        guild_name = self.bot.get_guild(guild_id).name
-                        await self.bot.get_user(player.get("player_id")).send(f"Your character is at 0 BP due to "
-                                                                              f"infrequent feeding or inactivity. If "
-                                                                              f"your character remains on this list "
-                                                                              f"too long you risk being removed from "
-                                                                              f"{guild_name}. When you log in please "
-                                                                              f"fill free to roll as many time as are "
-                                                                              f"necessary to fill your character's "
-                                                                              f"blood pool. You may then jump into "
-                                                                              f"play without accounting as the "
-                                                                              f"feeding occurred while you were "
-                                                                              f"offline.")
-                    except KeyError:
-                        continue
-                if player.get("alert_flag") == 1 and player.get("bp") > 0:
-                    db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", (player.get("id"),))
+                if not self.bot.get_user(player.get("player_id")):
+                    db.execute("DELETE FROM Characters WHERE id = %s", (player.get("id"),))
+                else:
+                    if player.get("bp") == 0 and player.get("alert_flag") == 0:
+                        db.execute("UPDATE Characters SET alert_flag = 1 WHERE id = %s", (player.get("id"),))
+                        try:
+                            guild_name = self.bot.get_guild(guild_id).name
+                            await self.bot.get_user(player.get("player_id")).send(f"Your character is at 0 BP due to "
+                                                                                  f"infrequent feeding or inactivity. "
+                                                                                  f"If your character remains on this "
+                                                                                  f"list too long you risk being "
+                                                                                  f"removed from {guild_name}. When "
+                                                                                  f"you log in please fill free to "
+                                                                                  f"roll as many time as are "
+                                                                                  f"necessary to fill your "
+                                                                                  f"character's blood pool. You may "
+                                                                                  f"then jump into play without "
+                                                                                  f"accounting as the feeding "
+                                                                                  f"occurred while you were offline.")
+                        except KeyError:
+                            continue
+                    if player.get("alert_flag") == 1 and player.get("bp") > 0:
+                        db.execute("UPDATE Characters SET alert_flag = 0 WHERE id = %s", (player.get("id"),))
 
-                if player.get('upkeep') > 0:
-                    time.ic_datetime_utc(guild_id)
-                    ctime = time.ic_datetime_utc(guild_id)
-                    if player.get("upkeep_date") != ' ':
-                        old_upkeep = utc.localize(player.get("upkeep_date"))
-                    else:
-                        old_upkeep = time.ic_datetime_utc(guild_id)
-                        db.execute("UPDATE Characters SET upkeep_dt = %s WHERE id = %s",
-                                   (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
-                    if old_upkeep < ctime:
-                        new_bp = player.get("bp") - 1
-                        upkeep_datetime = old_upkeep + timedelta(
-                            days=30.4375 / player.get("upkeep"))
-                        db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
-                                   (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
+                    if player.get('upkeep') > 0:
+                        time.ic_datetime_utc(guild_id)
+                        ctime = time.ic_datetime_utc(guild_id)
+                        if player.get("upkeep_date") != ' ':
+                            old_upkeep = utc.localize(player.get("upkeep_date"))
+                        else:
+                            old_upkeep = time.ic_datetime_utc(guild_id)
+                            db.execute("UPDATE Characters SET upkeep_dt = %s WHERE id = %s",
+                                       (old_upkeep.strftime("%Y:%m:%d:%H:%M:%S"), player.get("id")))
+                        if old_upkeep < ctime:
+                            new_bp = player.get("bp") - 1
+                            upkeep_datetime = old_upkeep + timedelta(
+                                days=30.4375 / player.get("upkeep"))
+                            db.execute("UPDATE Characters SET upkeep_dt = %s, bp = %s WHERE id = %s",
+                                       (upkeep_datetime.strftime("%Y:%m:%d:%H:%M:%S"), new_bp, player.get("id")))
 
             if cur_date_dt != last_date:
                 cur_date = time.ic_date(guild_id)
