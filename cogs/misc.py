@@ -22,12 +22,12 @@ class Misc(commands.Cog):
         # from a known date for a New Moon.                              #
         ##################################################################
         ic_date = time.ic_datetime(ctx.guild.id)
-        jd_a = int(ic_date.year/100)
-        jd_b = int(jd_a/4)
-        jd_c = 2-jd_a+jd_b
-        jd_e = int(365.25*(ic_date.year+4716))
-        jd_f = int(30.6001*(ic_date.month+1))
-        jd = jd_c+ic_date.day+jd_e+jd_f-1524.5
+        jd_a = int(ic_date.year / 100)
+        jd_b = int(jd_a / 4)
+        jd_c = 2 - jd_a + jd_b
+        jd_e = int(365.25 * (ic_date.year + 4716))
+        jd_f = int(30.6001 * (ic_date.month + 1))
+        jd = jd_c + ic_date.day + jd_e + jd_f - 1524.5
         cycle_days = jd % 29.53
         if cycle_days <= 1 or cycle_days > 28.5:
             moon_cycle = "New Moon"
@@ -75,7 +75,8 @@ class Misc(commands.Cog):
             for file in message.attachments:
                 f.write(file.url)
             f.write(
-                f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+                f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n"
+            )
             counter += 1
         await ctx.send(f"Channel archived {counter} messages.")
         f.close()
@@ -87,7 +88,9 @@ class Misc(commands.Cog):
         for item in s:
             f.write(item)
         f.close()
-        await ctx.send("Archive generation complete: " + chan_name, file=discord.File(working_file))
+        await ctx.send(
+            "Archive generation complete: " + chan_name, file=discord.File(working_file)
+        )
 
     @commands.command(hidden=True)
     async def scrape_all(self, ctx):
@@ -108,12 +111,25 @@ class Misc(commands.Cog):
                 else:
                     chan_name = chan.name
                     if chan.category:
-                        category_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name
+                        category_dir = (
+                            pathlib.Path.cwd()
+                            / "archive"
+                            / ctx.guild.name
+                            / chan.category.name
+                        )
                         if not category_dir.exists():
                             category_dir.mkdir()
-                        working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan.category.name / chan_name
+                        working_dir = (
+                            pathlib.Path.cwd()
+                            / "archive"
+                            / ctx.guild.name
+                            / chan.category.name
+                            / chan_name
+                        )
                     else:
-                        working_dir = pathlib.Path.cwd() / "archive" / ctx.guild.name / chan_name
+                        working_dir = (
+                            pathlib.Path.cwd() / "archive" / ctx.guild.name / chan_name
+                        )
                     if not working_dir.exists():
                         working_dir.mkdir()
                     working_file = working_dir / "log.txt"
@@ -123,7 +139,8 @@ class Misc(commands.Cog):
                         for file in message.attachments:
                             f.write(file.url)
                         f.write(
-                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n")
+                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n"
+                        )
                         counter += 1
                     await ctx.send(f"Channel {chan_name} archived {counter} messages.")
                     f.close()
@@ -142,12 +159,15 @@ class Misc(commands.Cog):
         url = str(member.avatar_url)
         filename = url.split("/")[-1]
         filename = filename.split("?")[
-            0]  # cleans up the file name so it removes trailing ? symbols and has correct extension
+            0
+        ]  # cleans up the file name so it removes trailing ? symbols and has correct extension
 
         async with aiohttp.ClientSession() as image:
             async with image.get(url) as ava:
                 if ava.status == 200:
-                    avatar = await aiofiles.open(pathlib.Path.cwd() / filename, mode='wb')
+                    avatar = await aiofiles.open(
+                        pathlib.Path.cwd() / filename, mode="wb"
+                    )
                     await avatar.write(await ava.read())
                     await avatar.close()
         ava_img = pathlib.Path.cwd() / filename
@@ -165,10 +185,15 @@ class Misc(commands.Cog):
     async def stake(self, ctx):
         guild = db.get_guild_info(ctx.guild.id)
         counter = guild.get("stakes")
-        db.execute("UPDATE Config SET stakes = %s WHERE id = %s", (counter + 1, guild.get("id")))
-        await ctx.send(f"*Gets frozen in place.* **Dracula has been staked: {counter + 1} times!**")
+        db.execute(
+            "UPDATE Config SET stakes = %s WHERE id = %s",
+            (counter + 1, guild.get("id")),
+        )
+        await ctx.send(
+            f"*Gets frozen in place.* **Dracula has been staked: {counter + 1} times!**"
+        )
 
-    '''@commands.command()
+    """@commands.command()
     async def caption(self, ctx, member: discord.Member, *words):
         url = str(member.avatar_url)
         filename = url.split("/")[-1]
@@ -190,7 +215,7 @@ class Misc(commands.Cog):
             ava_edit.save(ava_new)
             await ctx.send(file=discord.File(ava_new))
             ava_new.unlink()
-        ava_img.unlink()'''
+        ava_img.unlink()"""
 
 
 def setup(bot):

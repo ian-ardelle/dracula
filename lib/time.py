@@ -8,26 +8,43 @@ utc = pytz.utc
 def ic_date(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + ((utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient"))
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (
+        (utc_now - utc.localize(time_info.get("irl_start")))
+        * time_info.get("date_coefficient")
+    )
     return utcICCurrent.astimezone(time_info.get("tz")).strftime("%A, %B %d, %Y")
 
 
 def ic_date_dt(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utc_ic = utc.localize(time_info.get("ic_start")) + ((utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient"))
+    utc_ic = utc.localize(time_info.get("ic_start")) + (
+        (utc_now - utc.localize(time_info.get("irl_start")))
+        * time_info.get("date_coefficient")
+    )
     return utc_ic.astimezone(time_info.get("tz")).date()
 
 
 def ic_time(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + ((utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient"))
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (
+        (utc_now - utc.localize(time_info.get("irl_start")))
+        * time_info.get("date_coefficient")
+    )
     if utcICCurrent >= utc_now:
-        minutes_ic = utc_now.astimezone(time_info.get("tz")).hour*60 + utc_now.astimezone(time_info.get("tz")).minute
+        minutes_ic = (
+            utc_now.astimezone(time_info.get("tz")).hour * 60
+            + utc_now.astimezone(time_info.get("tz")).minute
+        )
     else:
-        minutes_ic = utcICCurrent.astimezone(time_info.get("tz")).hour*60 + utcICCurrent.astimezone(time_info.get("tz")).minute
-    minutes_ic = minutes_ic / 2  # we're only operating on 12 hours of time now, so we divide the time by 2
+        minutes_ic = (
+            utcICCurrent.astimezone(time_info.get("tz")).hour * 60
+            + utcICCurrent.astimezone(time_info.get("tz")).minute
+        )
+    minutes_ic = (
+        minutes_ic / 2
+    )  # we're only operating on 12 hours of time now, so we divide the time by 2
 
     if minutes_ic > 420:  # if the time is past 7am...
         minutes_ic += 720  # add 12 hours
@@ -47,13 +64,23 @@ def ic_time(guild_id):
 def ic_datetime(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient")
-    datetime_ic = datetime(utcICCurrent.year, utcICCurrent.month, utcICCurrent.day, int(ic_time(guild_id)[0:2]), int(ic_time(guild_id)[3:5]))
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (
+        utc_now - utc.localize(time_info.get("irl_start"))
+    ) * time_info.get("date_coefficient")
+    datetime_ic = datetime(
+        utcICCurrent.year,
+        utcICCurrent.month,
+        utcICCurrent.day,
+        int(ic_time(guild_id)[0:2]),
+        int(ic_time(guild_id)[3:5]),
+    )
     return datetime_ic
 
 
 def ic_datetime_utc(guild_id):
     time_info = db.get_guild_info(guild_id)
     utc_now = utc.localize(datetime.utcnow())
-    utcICCurrent = utc.localize(time_info.get("ic_start")) + (utc_now - utc.localize(time_info.get("irl_start"))) * time_info.get("date_coefficient")
+    utcICCurrent = utc.localize(time_info.get("ic_start")) + (
+        utc_now - utc.localize(time_info.get("irl_start"))
+    ) * time_info.get("date_coefficient")
     return utcICCurrent

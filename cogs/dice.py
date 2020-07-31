@@ -64,9 +64,15 @@ class Dice(commands.Cog):
             else:
                 ss += wp
                 if ss - fail > 0:
-                    result = str(ss - fail) + " successes! | Reason: " + str(reason_string)
+                    result = (
+                        str(ss - fail) + " successes! | Reason: " + str(reason_string)
+                    )
                 else:
-                    result = "{} successes!".format(str(wp)) + " | Reason: " + str(reason_string)
+                    result = (
+                        "{} successes!".format(str(wp))
+                        + " | Reason: "
+                        + str(reason_string)
+                    )
             await ctx.send("{} - Results: ".format(ctx.author.mention) + result)
             guild = db.get_guild_info(ctx.guild.id)
             if ctx.channel.id == guild.get("feeding_chan"):
@@ -79,20 +85,27 @@ class Dice(commands.Cog):
                 new_bp = current_bp + net_ss
                 if new_bp > bp_max:
                     new_bp = bp_max
-                db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (new_bp, player.get("id")))
+                db.execute(
+                    "UPDATE Characters SET bp = %s WHERE id = %s",
+                    (new_bp, player.get("id")),
+                )
                 if alert_st == 1:
-                    await self.bot.get_channel(guild.get("st_alerts_chan")).send("{} failed a feeding roll!".format(ctx.author.mention))
+                    await self.bot.get_channel(guild.get("st_alerts_chan")).send(
+                        "{} failed a feeding roll!".format(ctx.author.mention)
+                    )
                 elif alert_st == 2:
-                    await self.bot.get_channel(guild.get("st_alerts_chan")).send("{} botched a feeding roll!".format(ctx.author.mention))
+                    await self.bot.get_channel(guild.get("st_alerts_chan")).send(
+                        "{} botched a feeding roll!".format(ctx.author.mention)
+                    )
 
     @commands.command()
     async def rs(self, ctx, pool: int = 1, diff: int = 6, wp: str = "0", *reason):
-        '''
+        """
         Same as $r except this also applies explosions to the dice.\n\
         Syntax: $rs [Dice Pool] [Difficulty] [wpifier]\n\
         \n\
         Example: $rs 5 7 => [10, 2, 8, 4, 3] [9] Results: 3 Successes!
-        '''
+        """
         st_alert = 0
         reason_string = ""
 
@@ -192,13 +205,18 @@ class Dice(commands.Cog):
                 new_bp = current_bp + net_ss
                 if new_bp > bp_max:
                     new_bp = bp_max
-                db.execute("UPDATE Characters SET bp = %s WHERE id = %s", (new_bp, player.get("id")))
+                db.execute(
+                    "UPDATE Characters SET bp = %s WHERE id = %s",
+                    (new_bp, player.get("id")),
+                )
                 if st_alert == 1:
                     await self.bot.get_channel(guild.get("st_alerts_chan")).send(
-                        "{} failed a feeding roll!".format(ctx.author.mention))
+                        "{} failed a feeding roll!".format(ctx.author.mention)
+                    )
                 elif st_alert == 2:
                     await self.bot.get_channel(guild.get("st_alerts_chan")).send(
-                        "{} botched a feeding roll!".format(ctx.author.mention))
+                        "{} botched a feeding roll!".format(ctx.author.mention)
+                    )
 
 
 def setup(bot):

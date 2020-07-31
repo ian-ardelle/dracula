@@ -19,10 +19,7 @@ DISCORD_API_KEY = "NTc1MDk0NjEyMzEwMzYwMDg2.XPyMmg.bBhJKtQ9-PrsDTuS1hyoBvnJHxM"
 bot = commands.Bot(command_prefix="$", description="Dracula the Discord Daemon")
 
 
-initial_extensions = ["cogs.dice",
-                      "cogs.schedule",
-                      "cogs.bnw",
-                      "cogs.misc"]
+initial_extensions = ["cogs.dice", "cogs.schedule", "cogs.bnw", "cogs.misc"]
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -31,10 +28,15 @@ if __name__ == "__main__":
 
 @bot.event
 async def on_ready():
-    print(f"\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n")
+    print(
+        f"\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n"
+    )
     await bot.change_presence(activity=discord.Game(name="Vampire: The Masquerade"))
     print(f"Successfully logged in and booted!")
     for guild in db.get_guild_list():
-        await bot.get_channel(db.get_guild_info(guild[0]).get("announcements_chan")).send("Drac's back, baby!")
+        await bot.get_channel(
+            db.get_guild_info(guild[0]).get("announcements_chan")
+        ).send("Drac's back, baby!")
+
 
 bot.run(DISCORD_API_KEY, bot=True, reconnect=True)
