@@ -6,11 +6,46 @@ import aiohttp
 import aiofiles
 from PIL import Image
 from datetime import datetime, timedelta
+from lib import time
 
 
 class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    async def moon_cycle(self, ctx):
+        ##################################################################
+        # Start by calculating number of lunar cycles that have passed   #
+        # via Julian Day number conversion of the current IC date, then  #
+        # evaluate the corresponding moon cycle by taking the difference #
+        # from a known date for a New Moon.                              #
+        ##################################################################
+        ic_date = time.ic_datetime(ctx.guild.id)
+        jd_a = int(ic_date.year/100)
+        jd_b = int(jd_a/4)
+        jd_c = 2-jd_a+jd_b
+        jd_e = int(365.25*(ic_date.year+4716))
+        jd_f = int(30.6001*(ic_date.month+1))
+        jd = jd_c+ic_date.day+jd_e+jd_f-1524.5
+        cycle_days = jd % 29.53
+        if cycle_days <= 1 OR cycle_days > 28.5:
+            moon_cycle = "New Moon"
+        elif 1 < cycle_days <= 6:
+            moon_cycle = "Waxing Crescent"
+        elif 6 < cycle_days <= 8:
+            moon_cycle = "First Quarter"
+        elif 8 < cycle_days <= 14:
+            moon_cycle = "Waxing Gibbous"
+        elif 14 < cycle_days <= 16:
+            moon_cycle = "Full Moon"
+        elif 16 < cycle_days <= 21:
+            moon_cycle = "Waning Gibbous"
+        elif 21 < cycle_days <= 23:
+            moon_cycle = "Third Quarter"
+        elif 23 < cycle_days <= 28.5:
+            moon_cycle = "Waning Crescent"
+        await ctx.send(f"The current moon cycle is: {moon_cycle}.")
 
     @commands.command()
     async def numchan(self, ctx):
