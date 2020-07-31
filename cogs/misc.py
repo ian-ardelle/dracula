@@ -29,7 +29,7 @@ class Misc(commands.Cog):
         jd_f = int(30.6001*(ic_date.month+1))
         jd = jd_c+ic_date.day+jd_e+jd_f-1524.5
         cycle_days = jd % 29.53
-        if cycle_days <= 1 OR cycle_days > 28.5:
+        if cycle_days <= 1 or cycle_days > 28.5:
             moon_cycle = "New Moon"
         elif 1 < cycle_days <= 6:
             moon_cycle = "Waxing Crescent"
