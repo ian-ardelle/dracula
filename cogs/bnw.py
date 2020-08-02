@@ -241,31 +241,31 @@ class BnW(commands.Cog):
 
     @commands.command()
     async def purge_bp_leavers(self, ctx):
-    """
-    Another ST only command. Goes through list of users and flags\n\
-    ones to keep in the database from those still in server, purging the leavers.
-    """
-    authorized = False
-    guild = db.get_guild_info(ctx.guild.id)
-    for role in ctx.author.roles:
-        if guild.get("st_id") == role.id:
-            authorized = True
-    if authorized:
-        player_list = db.get_all_players(ctx.guild.id)
-        for player in player_list:
-            d_player = ctx.guild.get_member(player.get("player_id"))
-            if d_player:
-                if d_player in ctx.guild.get_role(guild.get("player_role")).members:
-                    db.execute(
-                        "UPDATE Characters SET active_toggle = 1 WHERE id = %s",
-                        player.get("id"),
-                    )
-        db.execute(
-            "DELETE FROM Characters WHERE active_toggle = 0 AND guild_id = %s",
-            guild.get("id"),
-        )
-        db.execute("UPDATE Characters SET active_toggle = 0")
-        await ctx.send("Table updated.")
+        """
+        Another ST only command. Goes through list of users and flags\n\
+        ones to keep in the database from those still in server, purging the leavers.
+        """
+        authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id:
+                authorized = True
+        if authorized:
+            player_list = db.get_all_players(ctx.guild.id)
+            for player in player_list:
+                d_player = ctx.guild.get_member(player.get("player_id"))
+                if d_player:
+                    if d_player in ctx.guild.get_role(guild.get("player_role")).members:
+                        db.execute(
+                            "UPDATE Characters SET active_toggle = 1 WHERE id = %s",
+                            player.get("id"),
+                        )
+            db.execute(
+                "DELETE FROM Characters WHERE active_toggle = 0 AND guild_id = %s",
+                guild.get("id"),
+            )
+            db.execute("UPDATE Characters SET active_toggle = 0")
+            await ctx.send("Table updated.")
 
     @commands.command()
     async def rm_player(self, ctx, member):
