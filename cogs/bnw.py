@@ -266,9 +266,7 @@ class BnW(commands.Cog):
             )
             db.execute("UPDATE Characters SET active_toggle = 0")
             await ctx.send("Table updated.")
-
-    @commands.command()
-    async def rm_player(self, ctx, member: discord.Member):
+    async def rm_player(self, ctx, member):
         """
         Removes specified user from Blood and Willpower database.\n\
         Syntax: $rm_player [member]
@@ -283,7 +281,7 @@ class BnW(commands.Cog):
         if authorized:
             db.execute(
                 "DELETE FROM Characters WHERE player_id = %s AND guild_id = %s",
-                (member.id, guild.get("id")),
+                (int(member), guild.get("id")),
             )
             await ctx.send("Value updated.")
 
