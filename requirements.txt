@@ -1,0 +1,19 @@
+###########################################
+# Requirements without versions specified #
+###########################################
+
+discord.py
+pytz
+mysql-connector-python
+aiohttp
+aiofiles
+Pillow
+
+
+###################################################
+# Requirements with specified version constraints #
+# (ideally all requirements should be in here)    #
+###################################################
+
+# ex) pyOpenSSL==0.13.1
+# ex2) nose~=1.2
