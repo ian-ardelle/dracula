@@ -81,7 +81,8 @@ class BnW(commands.Cog):
                 exist_check = db.get_player_info(ctx.guild.id, member.id)
             except TypeError:
                 db.execute(
-                    "INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep, upkeep_dt, agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,' ', 0,0,%s)",
+                    "INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep, upkeep_dt, agg_dmg, "
+                    "alert_flag, guild_id, active_toggle, Experience) VALUES (%s,5,5,5,5,0,' ', 0,0,%s, 0, 0)",
                     (member.id, guild.get("id")),
                 )
                 await ctx.send("Player Added")
@@ -236,7 +237,9 @@ class BnW(commands.Cog):
             stats_member = ctx.author
         player = db.get_player_info(ctx.guild.id, stats_member.id)
         await ctx.author.send(
-            f"--Stats for {stats_member.mention} on \"{ctx.guild.name}\"--\n\nBlood Points: {player.get('bp')}\nBlood Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\nAggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}"
+            f"--Stats for {stats_member.mention} on \"{ctx.guild.name}\"--\n\nBlood Points: {player.get('bp')}\nBlood "
+            f"Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\n"
+            f"Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}"
         )
 
     @commands.command()
@@ -468,6 +471,45 @@ class BnW(commands.Cog):
                                     await ctx.send("Values updated.")
                         except ValueError:
                             await ctx.send("Error: Invalid syntax.")
+
+    @commands.command()
+    async def set_exp(self, ctx, member, value):
+        authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id:
+                authorized = True
+        if authorized:
+            db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
+                       (int(value), int(member)))
+
+    @commands.command()
+    async def add_exp(self, ctx, member, value):
+        authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id:
+                authorized = True
+        if authorized:
+            player = db.get_player_info(ctx.guild.id, int(member))
+            new_exp = player.get('experience') + value
+            db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
+                       (new_exp, player.get('player_id')))
+
+    @commands.command()
+    async def add_exp_role(self, ctx, role, value):
+        authorized = False
+        guild = db.get_guild_info(ctx.guild.id)
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id:
+                authorized = True
+        if authorized:
+            r_list = role.members
+            for member in r_list:
+                player = db.get_player_info(ctx.guild.id, member.id)
+                new_exp = player.get('experience') + value
+                db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
+                           (new_exp, player.get('player_id')))
 
 
 def setup(bot):

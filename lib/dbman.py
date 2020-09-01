@@ -107,6 +107,7 @@ def get_player_info(guild_id, player_id):
         agg_dmg=player[8],
         alert_flag=player[9],
         guild_id=player[10],
+        experience=player[12],
     )
     return formatted_player
 
@@ -141,6 +142,7 @@ def get_all_players(guild_id):
             agg_dmg=player[8],
             alert_flag=player[9],
             guild_id=player[10],
+            experience=player[12],
         )
         formatted_player_list.append(formatted_player)
     return formatted_player_list
