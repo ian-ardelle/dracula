@@ -239,7 +239,7 @@ class BnW(commands.Cog):
         await ctx.author.send(
             f"--Stats for {stats_member.mention} on \"{ctx.guild.name}\"--\n\nBlood Points: {player.get('bp')}\nBlood "
             f"Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\n"
-            f"Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}\nExperience:"
+            f"Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}\nExperience: "
             f"{player.get('experience')}"
         )
 
@@ -494,7 +494,7 @@ class BnW(commands.Cog):
                 authorized = True
         if authorized:
             player = db.get_player_info(ctx.guild.id, int(member))
-            new_exp = player.get('experience') + value
+            new_exp = player.get('experience') + int(value)
             db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                        (new_exp, player.get('player_id')))
             await ctx.send("Experience added successfully.")
@@ -510,7 +510,7 @@ class BnW(commands.Cog):
             r_list = role.members
             for member in r_list:
                 player = db.get_player_info(ctx.guild.id, member.id)
-                new_exp = player.get('experience') + value
+                new_exp = player.get('experience') + int(value)
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                            (new_exp, player.get('player_id')))
             await ctx.send("Experience added successfully.")
