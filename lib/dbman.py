@@ -83,19 +83,16 @@ def get_player_info(guild_id, player_id):
         (g_id, player_id),
     )
     player = c.fetchone()
-    if player[7]:
-        raw = player[7].decode("utf-8")
-        if raw != " ":
-            upkeep_dt = datetime(
-                int(raw[0:4]),
-                int(raw[5:7]),
-                int(raw[8:10]),
-                int(raw[11:13]),
-                int(raw[14:16]),
-                int(raw[17:19]),
-            )
-        else:
-            upkeep_dt = " "
+    raw = player[7].decode("utf-8")
+    if raw != " ":
+        upkeep_dt = datetime(
+            int(raw[0:4]),
+            int(raw[5:7]),
+            int(raw[8:10]),
+            int(raw[11:13]),
+            int(raw[14:16]),
+            int(raw[17:19]),
+        )
     else:
         upkeep_dt = " "
     formatted_player = dict(
@@ -121,19 +118,16 @@ def get_all_players(guild_id):
     player_list = c.fetchall()
     formatted_player_list = []
     for player in player_list:
-        if player[7]:
-            raw = player[7].decode("utf-8")
-            if raw != " ":
-                upkeep_dt = datetime(
-                    int(raw[0:4]),
-                    int(raw[5:7]),
-                    int(raw[8:10]),
-                    int(raw[11:13]),
-                    int(raw[14:16]),
-                    int(raw[17:19]),
-                )
-            else:
-                upkeep_dt = " "
+        raw = player[7].decode("utf-8")
+        if raw != " ":
+            upkeep_dt = datetime(
+                int(raw[0:4]),
+                int(raw[5:7]),
+                int(raw[8:10]),
+                int(raw[11:13]),
+                int(raw[14:16]),
+                int(raw[17:19]),
+            )
         else:
             upkeep_dt = " "
         formatted_player = dict(
