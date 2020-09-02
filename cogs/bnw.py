@@ -239,7 +239,8 @@ class BnW(commands.Cog):
         await ctx.author.send(
             f"--Stats for {stats_member.mention} on \"{ctx.guild.name}\"--\n\nBlood Points: {player.get('bp')}\nBlood "
             f"Point Cap: {player.get('bp_max')}\nWillpower: {player.get('wp')}\nWillpower Cap: {player.get('wp_max')}\n"
-            f"Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}"
+            f"Aggravated Damage: {player.get('agg_dmg')}\nMonthly Upkeep: {player.get('upkeep')}\nExperience:"
+            f"{player.get('experience')}"
         )
 
     @commands.command()
@@ -482,6 +483,7 @@ class BnW(commands.Cog):
         if authorized:
             db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                        (int(value), int(member)))
+            await ctx.send("Experience set successfully.")
 
     @commands.command()
     async def add_exp(self, ctx, member, value):
@@ -495,6 +497,7 @@ class BnW(commands.Cog):
             new_exp = player.get('experience') + value
             db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                        (new_exp, player.get('player_id')))
+            await ctx.send("Experience added successfully.")
 
     @commands.command()
     async def add_exp_role(self, ctx, role, value):
@@ -510,6 +513,7 @@ class BnW(commands.Cog):
                 new_exp = player.get('experience') + value
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                            (new_exp, player.get('player_id')))
+            await ctx.send("Experience added successfully.")
 
 
 def setup(bot):
