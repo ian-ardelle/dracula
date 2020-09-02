@@ -509,6 +509,7 @@ class BnW(commands.Cog):
         if authorized:
             r_list = role.members
             for member in r_list:
+                print(member.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
                 new_exp = player.get('experience') + int(value)
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
