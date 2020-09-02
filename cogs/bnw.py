@@ -514,8 +514,8 @@ class BnW(commands.Cog):
                 print(role_added.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
                 new_exp = player.get('experience') + int(value)
-                db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
-                           (new_exp, player.get('player_id')))
+                db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s AND guild_id = %s",
+                           (new_exp, player.get('player_id'), player.get('guild_id')))
             await ctx.send("Experience added successfully.")
 
 
