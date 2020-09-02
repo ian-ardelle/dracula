@@ -500,18 +500,18 @@ class BnW(commands.Cog):
             await ctx.send("Experience added successfully.")
 
     @commands.command()
-    async def add_exp_role(self, ctx, role, value):
+    async def add_exp_role(self, ctx, role_added, value):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
         for role in ctx.author.roles:
             if guild.get("st_id") == role.id:
                 authorized = True
         if authorized:
-            r_list = role.members
+            r_list = role_added.members
             for member in r_list:
                 print(member.id)
+                print(role_added.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
-                print(player.get('player_id'))
                 new_exp = player.get('experience') + int(value)
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                            (new_exp, player.get('player_id')))
