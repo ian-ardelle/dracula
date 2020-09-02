@@ -511,6 +511,7 @@ class BnW(commands.Cog):
             for member in r_list:
                 print(member.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
+                print(player.get('player_id'))
                 new_exp = player.get('experience') + int(value)
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                            (new_exp, player.get('player_id')))
