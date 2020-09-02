@@ -503,6 +503,7 @@ class BnW(commands.Cog):
     async def add_exp_role(self, ctx, role_added, value):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
+        print(role_added)
         for role in ctx.author.roles:
             if guild.get("st_id") == role.id:
                 authorized = True
