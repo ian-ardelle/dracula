@@ -500,7 +500,7 @@ class BnW(commands.Cog):
             await ctx.send("Experience added successfully.")
 
     @commands.command()
-    async def add_exp_role(self, ctx, role_added, value):
+    async def add_exp_role(self, ctx, role_added: discord.role, value):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
         print(role_added)
