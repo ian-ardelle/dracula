@@ -508,6 +508,7 @@ class BnW(commands.Cog):
                 authorized = True
         if authorized:
             r_list = role_added.members
+            print(r_list)
             for member in r_list:
                 print(member.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
