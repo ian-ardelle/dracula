@@ -503,7 +503,6 @@ class BnW(commands.Cog):
     async def add_exp_role(self, ctx, role_added: discord.Role, value):
         authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        print(role_added)
         for role in ctx.author.roles:
             if guild.get("st_id") == role.id:
                 authorized = True
@@ -511,7 +510,6 @@ class BnW(commands.Cog):
             r_list = role_added.members
             for member in r_list:
                 print(member.id)
-                print(role_added.id)
                 player = db.get_player_info(ctx.guild.id, member.id)
                 new_exp = player.get('experience') + int(value)
                 db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s AND guild_id = %s",
