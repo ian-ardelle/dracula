@@ -39,6 +39,8 @@ class BnW(commands.Cog):
     # Again uses authentication loop for STs
     # Populates any new users into the BnW database
     # Skips over any users with a Bot role and those who already exist in the database
+
+    
     @commands.command()
     async def bp_wp_pop(self, ctx):
         """
@@ -59,7 +61,7 @@ class BnW(commands.Cog):
                     except TypeError:
                         db.execute(
                             "INSERT INTO Characters (player_id, bp_max, bp, wp_max, wp, upkeep,"
-                            "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,0,0,%s)",
+                            "agg_dmg, alert_flag, guild_id) VALUES (%s,5,5,5,5,0,' ', 0,0,%s, 0, 0)",
                             (member.id, guild.get("id")),
                         )
             await ctx.send("Table populated.")

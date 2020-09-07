@@ -8,12 +8,13 @@
 from discord.ext import commands
 import lib.dbman as db
 import discord
+import config
 
 ############################################################
 # Removed config file, implemented constants in its place. #
 ############################################################
 
-DISCORD_API_KEY = "NTc1MDk0NjEyMzEwMzYwMDg2.XPyMmg.bBhJKtQ9-PrsDTuS1hyoBvnJHxM"
+DISCORD_BOT_TOKEN = config.DISCORD_BOT_TOKEN
 
 
 bot = commands.Bot(command_prefix="$", description="Dracula the Discord Daemon")
@@ -33,10 +34,6 @@ async def on_ready():
     )
     await bot.change_presence(activity=discord.Game(name="Vampire: The Masquerade"))
     print(f"Successfully logged in and booted!")
-    for guild in db.get_guild_list():
-        await bot.get_channel(
-            db.get_guild_info(guild[0]).get("announcements_chan")
-        ).send("Drac's back, baby!")
 
 
-bot.run(DISCORD_API_KEY, bot=True, reconnect=True)
+bot.run(DISCORD_BOT_TOKEN, bot=True, reconnect=True)

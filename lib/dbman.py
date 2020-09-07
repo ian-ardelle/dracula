@@ -7,9 +7,10 @@
 import mysql.connector as mysql
 from datetime import datetime
 from pytz import timezone
+import config
 
 db = mysql.connect(
-    host="localhost", user="drac", passwd="F1v3B0r0ugh$", database="Dracula"
+    host=config.DB_HOST, user=config.DB_USER, passwd=config.DB_PASSWD, database=config.DB_NAME
 )
 
 c = db.cursor(buffered=True)
