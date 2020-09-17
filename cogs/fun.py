@@ -6,7 +6,7 @@ import random
 import json
 
 
-class Dice(commands.Cog):
+class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,9 +32,10 @@ class Dice(commands.Cog):
             if player.get('chess') == ctx.channel.id:
                 p1 = ctx.guild.get_member(player.get('player_id')).display_name
                 p2 = ctx.author.display_name
-                user = db.get_player_info(ctx.guild.id, ctx.author.id))
+                user = db.get_player_info(ctx.guild.id, ctx.author.id)
                 await ctx.send(f"Game prepared in this channel for players: {p1} and {p2}.")
                 db.execute("UPDATE Characters SET chess = %s WHERE id = %s", (ctx.channel.id, user.get('id')),)
+
 
     @commands.command()
     async def chess_leave(self, ctx):
@@ -84,3 +85,6 @@ class Dice(commands.Cog):
             old_log.pop(f"{member.id}")
         except KeyError:
             await ctx.send("Member is not jailed.")
+
+def setup(bot):
+    bot.add_cog(Fun(bot))
