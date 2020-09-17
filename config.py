@@ -1,0 +1,4 @@
+DISCORD_BOT_TOKEN = "NTc1MDk0NjEyMzEwMzYwMDg2.XNC8mA.bRHqtQvFEVDKvh2hcSJzq3fwzAk"
+DB_USER = "drac"
+DB_PASSWD = "F1v3B0r0ugh$"
+DB_NAME = "Dracula"

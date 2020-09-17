@@ -20,7 +20,7 @@ DISCORD_BOT_TOKEN = config.DISCORD_BOT_TOKEN
 bot = commands.Bot(command_prefix="$", description="Dracula the Discord Daemon")
 
 
-initial_extensions = ["cogs.dice", "cogs.schedule", "cogs.bnw", "cogs.misc"]
+initial_extensions = ["cogs.dice", "cogs.schedule", "cogs.bnw", "cogs.misc", "cogs.fun"]
 
 if __name__ == "__main__":
     for extension in initial_extensions:
