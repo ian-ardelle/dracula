@@ -62,7 +62,7 @@ class Fun(commands.Cog):
     # Moderation #
     ##############
     @commands.command()
-    async def jail(self, ctx, member_id: discord.Member):
+    async def jail(self, ctx, member_id):
         member = ctx.guild.get_member(member_id)
         jail_log = open(f"jail_log_{ctx.guild.id}.json", "w+")
         old_log = json.load(jail_log)
@@ -74,7 +74,7 @@ class Fun(commands.Cog):
             await member.edit(roles=[ctx.guild.default_role, ctx.guild.get_role(756212060441804811)])
             json.dump(old_log, jail_log)
 
-    async def pardon(self, ctx, member_id: discord.Member):
+    async def pardon(self, ctx, member_id):
         member = ctx.guild.get_member(member_id)
         jail_log = open(f"jail_log_{ctx.guild.id}.json", "w+")
         old_log = json.load(jail_log)
