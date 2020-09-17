@@ -65,11 +65,11 @@ class Fun(commands.Cog):
     async def jail(self, ctx, member_id):
         member = ctx.guild.get_member(member_id)
         jail_log = open(f"jail_log_{ctx.guild.id}.json", "w+")
-        old_log = json.load(jail_log)
         try:
+            old_log = json.load(jail_log)
             old_log[f"{member.id}"]
             await ctx.send("Member is already jailed.")
-        except KeyError:
+        except KeyError or json.decoder.JSONDecodeError:
             old_log[f"{member.id}"] = member.roles
             await member.edit(roles=[ctx.guild.default_role, ctx.guild.get_role(756212060441804811)])
             json.dump(old_log, jail_log)
@@ -77,8 +77,8 @@ class Fun(commands.Cog):
     async def pardon(self, ctx, member_id):
         member = ctx.guild.get_member(member_id)
         jail_log = open(f"jail_log_{ctx.guild.id}.json", "w+")
-        old_log = json.load(jail_log)
         try:
+            old_log = json.load(jail_log)
             old_roles = old_log[f"{member.id}"]
             await member.edit(roles=old_roles)
             old_log.pop(f"{member.id}")
