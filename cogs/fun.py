@@ -21,7 +21,7 @@ class Fun(commands.Cog):
         for person in players:
             if person.get('chess') == ctx.channel.id:
                 exist_check = 1
-        if player.get('chess') == 0 AND exist_check == 0:
+        if player.get('chess') == 0 and exist_check == 0:
             db.execute("UPDATE Characters SET chess = %s WHERE id = %s", (ctx.channel.id, player.get('id')),)
             await ctx.send("Game lobby created successfully.")
 
@@ -35,7 +35,6 @@ class Fun(commands.Cog):
                 user = db.get_player_info(ctx.guild.id, ctx.author.id)
                 await ctx.send(f"Game prepared in this channel for players: {p1} and {p2}.")
                 db.execute("UPDATE Characters SET chess = %s WHERE id = %s", (ctx.channel.id, user.get('id')),)
-
 
     @commands.command()
     async def chess_leave(self, ctx):
@@ -85,6 +84,7 @@ class Fun(commands.Cog):
             old_log.pop(f"{member.id}")
         except KeyError:
             await ctx.send("Member is not jailed.")
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
