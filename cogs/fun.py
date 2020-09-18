@@ -71,14 +71,15 @@ class Fun(commands.Cog):
                 role_list = []
                 for role2 in member.roles:
                     role_list.append(role2.id)
-                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r+")
+                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r")
                 try:
                     old_log = pickle.load(jail_log)
                 except EOFError:
                     old_log = {}
                 old_log[f"{member.id}"] = role_list
                 await member.edit(roles=[ctx.guild.default_role, ctx.guild.get_role(756212060441804811)])
-                jail_log.truncate()
+                jail_log.close()
+                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "w")
                 pickle.dump(old_log, jail_log)
                 jail_log.close()
 
@@ -89,13 +90,14 @@ class Fun(commands.Cog):
             if role != ctx.guild.get_role(756212060441804811):
                 await ctx.send("This user is not jailed.")
             else:
-                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r+")
+                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r")
                 old_log = pickle.load(jail_log)
                 old_roles = old_log[f"{member.id}"]
                 await member.add_roles(roles=old_roles)
                 await member.remove_roles(756212060441804811)
                 old_log.pop(f"{member.id}")
-                jail_log.truncate()
+                jail_log.close()
+                jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r")
                 if old_log == {}:
                     pickle.dump({}, jail_log)
                 else:
