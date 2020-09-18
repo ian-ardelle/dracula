@@ -82,6 +82,7 @@ class Fun(commands.Cog):
                 pickle.dump(old_log, jail_log)
                 jail_log.close()
 
+    @commands.command()
     async def pardon(self, ctx, member_id):
         member = ctx.guild.get_member(int(member_id))
         for role in member.roles:
