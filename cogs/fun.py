@@ -96,7 +96,7 @@ class Fun(commands.Cog):
                 new_roles = []
                 for role2 in old_roles:
                     new_roles.append(discord.Object(role2))
-                await member.add_roles(old_roles)
+                await member.add_roles(new_roles)
                 await member.remove_roles(756212060441804811)
                 old_log.pop(f"{member.id}")
                 jail_log.close()
