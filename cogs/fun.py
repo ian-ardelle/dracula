@@ -77,7 +77,7 @@ class Fun(commands.Cog):
                 except EOFError:
                     old_log = {}
                 old_log[f"{member.id}"] = role_list
-                await member.edit(roles=[ctx.guild.default_role, ctx.guild.get_role(756212060441804811)])
+                await member.edit(roles=[ctx.guild.get_role(756212060441804811)])
                 jail_log.close()
                 jail_log = open(f"jail_log_{ctx.guild.id}.bin", "wb")
                 pickle.dump(old_log, jail_log)
