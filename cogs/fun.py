@@ -3,7 +3,7 @@ import lib.dbman as db
 import discord
 import chess
 import random
-import dill
+import pickle
 
 
 class Fun(commands.Cog):
@@ -69,11 +69,12 @@ class Fun(commands.Cog):
                 await ctx.send("This user is already jailed.")
             else:
                 jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r+b")
-                old_log = dill.load(jail_log)
+                old_log = pickle.load(jail_log)
                 old_log[f"{member.id}"] = member.roles
+                print(member.roles)
                 await member.edit(roles=[ctx.guild.default_role, ctx.guild.get_role(756212060441804811)])
                 jail_log.truncate(0)
-                dill.dump(old_log, jail_log)
+                pickle.dump(old_log, jail_log)
                 jail_log.close()
 
     async def pardon(self, ctx, member_id):
@@ -83,12 +84,15 @@ class Fun(commands.Cog):
                 await ctx.send("This user is not jailed.")
             else:
                 jail_log = open(f"jail_log_{ctx.guild.id}.bin", "r+b")
-                old_log = dill.load(jail_log)
+                old_log = pickle.load(jail_log)
                 old_roles = old_log[f"{member.id}"]
                 await member.edit(roles=old_roles)
                 old_log.pop(f"{member.id}")
                 jail_log.truncate(0)
-                dill.dump(old_log, jail_log)
+                if old_log == {}:
+                    pickle.dump({}, jail_log)
+                else:
+                    pickle.dump(old_log, jail_log)
                 jail_log.close()
 
 
