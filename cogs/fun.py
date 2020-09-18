@@ -62,7 +62,7 @@ class Fun(commands.Cog):
     # Moderation #
     ##############
     @commands.command()
-    async def jail(self, ctx, member_id: discord.Member):
+    async def jail(self, ctx, member_id):
         member = ctx.guild.get_member(int(member_id))
         for role in member.roles:
             if role == ctx.guild.get_role(756212060441804811):
@@ -76,7 +76,7 @@ class Fun(commands.Cog):
                 pickle.dump(old_log, jail_log)
                 jail_log.close()
 
-    async def pardon(self, ctx, member_id: discord.Member):
+    async def pardon(self, ctx, member_id):
         member = ctx.guild.get_member(int(member_id))
         for role in member.roles:
             if role != ctx.guild.get_role(756212060441804811):
