@@ -95,7 +95,7 @@ class Fun(commands.Cog):
                 old_roles = old_log[f"{member.id}"]
                 new_roles = []
                 for role2 in old_roles:
-                    new_roles.append(discord.Object(role2))
+                    new_roles.append(ctx.guild.get_role(role2))
                 print(new_roles)
                 await member.add_roles(*new_roles)
                 await member.remove_roles(756212060441804811)
