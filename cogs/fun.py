@@ -63,7 +63,7 @@ class Fun(commands.Cog):
     ##############
     @commands.command()
     async def jail(self, ctx, member_id: discord.Member):
-        member = ctx.guild.get_member(member_id)
+        member = ctx.guild.get_member(int(member_id))
         for role in member.roles:
             if role == ctx.guild.get_role(756212060441804811):
                 await ctx.send("This user is already jailed.")
