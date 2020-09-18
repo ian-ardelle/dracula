@@ -93,7 +93,7 @@ class Fun(commands.Cog):
                 jail_log = open(f"jail_log_{ctx.guild.id}.bin", "rb")
                 old_log = pickle.load(jail_log)
                 old_roles = old_log[f"{member.id}"]
-                await member.add_roles(roles=old_roles)
+                await member.add_roles(old_roles)
                 await member.remove_roles(756212060441804811)
                 old_log.pop(f"{member.id}")
                 jail_log.close()
