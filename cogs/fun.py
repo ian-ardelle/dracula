@@ -93,6 +93,9 @@ class Fun(commands.Cog):
                 jail_log = open(f"jail_log_{ctx.guild.id}.bin", "rb")
                 old_log = pickle.load(jail_log)
                 old_roles = old_log[f"{member.id}"]
+                new_roles = []
+                for role2 in old_roles:
+                    new_roles.append(discord.Object(role2))
                 await member.add_roles(old_roles)
                 await member.remove_roles(756212060441804811)
                 old_log.pop(f"{member.id}")
