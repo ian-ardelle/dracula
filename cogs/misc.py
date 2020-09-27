@@ -65,6 +65,12 @@ class Misc(commands.Cog):
             guild_dir.mkdir()
         chan_name = ctx.guild.get_channel(int(cid)).name
         await ctx.send("Archiving channel...")
+        working_dir = pathlib.Path.cwd() / "backups"
+        if not working_dir.exists():
+            working_dir.mkdir()
+        working_dir = pathlib.Path.cwd() / "backups" / guild_name
+        if not working_dir.exists():
+            working_dir.mkdir()
         working_dir = pathlib.Path.cwd() / "backups" / guild_name / chan_name
         if not working_dir.exists():
             working_dir.mkdir()
