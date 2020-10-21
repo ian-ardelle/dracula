@@ -234,7 +234,7 @@ class Misc(commands.Cog):
         chan_list_smol = chan_list[int(series_start)-1:int(series_start)+49]
         for channel in chan_list_smol:
             message = f"{message} {channel.name} - {str(channel.id)}\n"
-        ctx.send(message[:-1])
+        await ctx.send(message[:-1])
 
 
 def setup(bot):
