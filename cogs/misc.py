@@ -220,6 +220,22 @@ class Misc(commands.Cog):
             ava_new.unlink()
         ava_img.unlink()"""
 
+    @commands.command()
+    async def echo(self, ctx, channel, *words):
+        message = ""
+        for word in words:
+            message = message + word + ' '
+        await self.bot.get_channel(int(channel)).send(message[:-1])
+
+    @commands.command()
+    async def chan_lookup(self, ctx, guild, series_start):
+        message = ""
+        chan_list = self.bot.get_guild(int(guild))
+        chan_list_smol = chan_list[int(series_start)-1:int(series_start)+49]
+        for channel in chan_list_smol:
+            message = message + channel.name + " - " + channel.id
+        ctx.send(message[:-1])
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))
