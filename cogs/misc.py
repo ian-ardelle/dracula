@@ -233,7 +233,7 @@ class Misc(commands.Cog):
         chan_list = self.bot.get_guild(int(guild)).channels
         chan_list_smol = chan_list[int(series_start)-1:int(series_start)+49]
         for channel in chan_list_smol:
-            message = message + channel.name + " - " + channel.id
+            message = f"{message} {channel.name} - {str(channel.id)}\n"
         ctx.send(message[:-1])
 
 
