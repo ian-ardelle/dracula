@@ -20,7 +20,7 @@ class BnW(commands.Cog):
             bb_members = bb_role.members
             if bb_members is not None:
                 for member in bb_members:
-                    if db.get_player_info(guild.get("guild_id"), member.id):
+                    try:
                         player = db.get_player_info(guild.get("guild_id"), member.id)
                         if player.get("bp") + 1 <= player.get("bp_max"):
                             await self.bot.get_guild(guild.get("guild_id")).get_member(
@@ -31,6 +31,8 @@ class BnW(commands.Cog):
                                 "UPDATE Characters SET bp = %s WHERE id = %s",
                                 (new_bp, player.get("id")),
                             )
+                    except TypeError:
+                        continue
 
     @blood_bag.before_loop
     async def loop_starts(self):
