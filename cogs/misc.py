@@ -78,7 +78,7 @@ class Misc(commands.Cog):
             for file in message.attachments:
                 f.write(file.url)
             f.write(
-                f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n"
+                f"{message.created_at.strftime('[%x %X]')} {message.author.name} [{message.author.id}]: {message.clean_content}\n"
             )
             counter += 1
         await ctx.send(f"Channel archived {counter} messages.")
@@ -134,7 +134,7 @@ class Misc(commands.Cog):
                         for file in message.attachments:
                             f.write(file.url)
                         f.write(
-                            f"{message.created_at.strftime('[%x %X]')} {message.author.display_name}: {message.clean_content}\n"
+                            f"{message.created_at.strftime('[%x %X]')} {message.author.name} [{message.author.id}]: {message.clean_content}\n"
                         )
                         counter += 1
                     await ctx.send(f"Channel {chan_name} archived {counter} messages.")
