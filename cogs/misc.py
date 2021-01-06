@@ -74,7 +74,7 @@ class Misc(commands.Cog):
         working_file = working_dir / "log.txt"
         f = open(working_file, "w")
         mychan = ctx.guild.get_channel(int(cid))
-        async for message in mychan.history(limit=None):
+        async for message in mychan.history(limit=None, oldest_first=True):
             for file in message.attachments:
                 f.write(file.url)
             f.write(
@@ -82,14 +82,6 @@ class Misc(commands.Cog):
             )
             counter += 1
         await ctx.send(f"Channel archived {counter} messages.")
-        f.close()
-        f = open(working_file, "r")
-        s = f.readlines()
-        f.close()
-        f = open(working_file, "w")
-        s.reverse()
-        for item in s:
-            f.write(item)
         f.close()
         await ctx.send(
             "Archive generation complete: " + chan_name, file=discord.File(working_file)
@@ -138,7 +130,7 @@ class Misc(commands.Cog):
                     working_file = working_dir / "log.txt"
                     f = open(working_file, "w")
                     counter = 0
-                    async for message in chan.history(limit=None):
+                    async for message in chan.history(limit=None, oldest_first=True):
                         for file in message.attachments:
                             f.write(file.url)
                         f.write(
@@ -146,14 +138,6 @@ class Misc(commands.Cog):
                         )
                         counter += 1
                     await ctx.send(f"Channel {chan_name} archived {counter} messages.")
-                    f.close()
-                    f = open(working_file, "r")
-                    s = f.readlines()
-                    f.close()
-                    f = open(working_file, "w")
-                    s.reverse()
-                    for item in s:
-                        f.write(item)
                     f.close()
             await ctx.send("Server archive complete.")
 
