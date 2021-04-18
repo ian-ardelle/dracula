@@ -7,6 +7,7 @@ import aiofiles
 from PIL import Image
 from datetime import datetime, timedelta
 from lib import time
+import lib.utility as utility
 
 
 class Misc(commands.Cog):
@@ -89,12 +90,8 @@ class Misc(commands.Cog):
 
     @commands.command(hidden=True)
     async def scrape_all(self, ctx):
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             await ctx.send("Archiving server...")
             guild_name = ctx.guild.name
             guild_dir = pathlib.Path.cwd() / "archive" / guild_name
