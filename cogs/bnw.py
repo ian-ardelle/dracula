@@ -3,6 +3,7 @@
 from discord.ext import tasks, commands
 import lib.dbman as db
 import discord
+import lib.utility as utility
 
 
 class BnW(commands.Cog):
@@ -51,12 +52,8 @@ class BnW(commands.Cog):
         Does not affect those who already have entries in the table.\n\
         Will set all values other than their player_id to 0.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             for member in ctx.guild.members:
                 if guild.get("player_role") in member.roles:
                     try:
@@ -74,14 +71,8 @@ class BnW(commands.Cog):
         """
         Adds a blank entry for the mentioned Discord user.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             try:
                 exist_check = db.get_player_info(ctx.guild.id, member.id)
             except TypeError:
@@ -103,14 +94,8 @@ class BnW(commands.Cog):
         Syntax: $set_bp [member] [value]\n\
         NOTE: This does not check BP max values, so through this command one may exceed BP limits.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             if value:
                 db.execute(
                     "UPDATE Characters SET bp = %s WHERE player_id = %s AND guild_id = %s",
@@ -124,14 +109,8 @@ class BnW(commands.Cog):
         Sets bp max value of the specified member to the specified value (ST only command).\n\
         Syntax: $set_bp_max [member] [value]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "UPDATE Characters SET bp_max = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -145,14 +124,8 @@ class BnW(commands.Cog):
         Syntax: $set_wp [member] [value]\n\
         NOTE: This does not check WP max values, so through this command one may exceed WP limits.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "UPDATE Characters SET wp = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -165,14 +138,8 @@ class BnW(commands.Cog):
         Sets WP value of the specified member to the specified value (ST only command).\n\
         Syntax: $set_wp_max [member] [value]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "UPDATE Characters SET wp_max = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -185,14 +152,8 @@ class BnW(commands.Cog):
         Sets aggravated damage value of the specified member to the specified value (ST / Narrator only command).\n\
         Syntax: $set_agg_dmg [member] [value]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "UPDATE Characters SET agg_dmg = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -205,14 +166,8 @@ class BnW(commands.Cog):
         Sets bp upkeep value of the specified member to the specified value (ST / Narrator only command).\n\
         Syntax: $set_bp_upkeep [member] [value]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "UPDATE Characters SET upkeep = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -226,14 +181,8 @@ class BnW(commands.Cog):
         the command of a given member.\n\n\
         Syntax: $check_stats / $check_stats [member]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             if member == 0:
                 stats_member = ctx.author
             else:
@@ -254,12 +203,8 @@ class BnW(commands.Cog):
         Another ST only command. Goes through list of users and flags\n\
         ones to keep in the database from those still in server, purging the leavers.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             player_list = db.get_all_players(ctx.guild.id)
             for player in player_list:
                 d_player = ctx.guild.get_member(player.get("player_id"))
@@ -282,14 +227,8 @@ class BnW(commands.Cog):
         Removes specified user from Blood and Willpower database.\n\
         Syntax: $rm_player [member]
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             db.execute(
                 "DELETE FROM Characters WHERE player_id = %s AND guild_id = %s",
                 (int(member), guild.get("id")),
@@ -302,12 +241,8 @@ class BnW(commands.Cog):
         Yet another ST only command. Returns a DM with a list of players\n\
         who have 0 blood points.
         """
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             db.execute(
                 "SELECT player_id from Characters WHERE bp = 0 AND guild_id = %s",
                 guild.get("id"),
@@ -367,14 +302,8 @@ class BnW(commands.Cog):
                 except ValueError:
                     await ctx.send("Error: Invalid syntax.")
             if user_id is not None:
-                authorized = False
                 guild = db.get_guild_info(ctx.guild.id)
-                for role in ctx.author.roles:
-                    if guild.get("st_id") == role.id:
-                        authorized = True
-                    elif guild.get("narrator_id") == role.id:
-                        authorized = True
-                if authorized:
+                if utility.auth_check_st_nar(guild, ctx.author.roles):
                     if arg2 == "none":
                         player = db.get_player_info(ctx.guild.id, user_id)
                         await ctx.author.send(
@@ -444,14 +373,8 @@ class BnW(commands.Cog):
                 except ValueError:
                     await ctx.send("Error: Invalid syntax.")
             if user_id is not None:
-                authorized = False
                 guild = db.get_guild_info(ctx.guild.id)
-                for role in ctx.author.roles:
-                    if guild.get("st_id") == role.id:
-                        authorized = True
-                    elif guild.get("narrator_id") == role.id:
-                        authorized = True
-                if authorized:
+                if utility.auth_check_st_nar(guild, ctx.author.roles):
                     if arg2 == "none":
                         player = db.get_player_info(ctx.guild.id, user_id)
                         await ctx.author.send(
@@ -480,24 +403,16 @@ class BnW(commands.Cog):
 
     @commands.command()
     async def set_exp(self, ctx, member, value):
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
                        (int(value), int(member)))
             await ctx.send("Experience set successfully.")
 
     @commands.command()
     async def add_exp(self, ctx, member, value):
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             player = db.get_player_info(ctx.guild.id, int(member))
             new_exp = player.get('experience') + int(value)
             db.execute("UPDATE Characters SET Experience = %s WHERE player_id = %s",
@@ -506,12 +421,8 @@ class BnW(commands.Cog):
 
     @commands.command()
     async def add_exp_role(self, ctx, role_added: discord.Role, value):
-        authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-        if authorized:
+        if utility.auth_check_st(guild, ctx.author.roles):
             r_list = role_added.members
             print(r_list)
             for member in r_list:
