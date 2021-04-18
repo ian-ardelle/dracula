@@ -71,16 +71,8 @@ class BnW(commands.Cog):
         """
         Adds a blank entry for the mentioned Discord user.
         """
-        """authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        for role in ctx.author.roles:
-            if guild.get("st_id") == role.id:
-                authorized = True
-            elif guild.get("narrator_id") == role.id:
-                authorized = True"""
-        authorized = utility.auth_check_st_nar(ctx.guild.id, ctx.author.roles)
-        guild = db.get_guild_info(ctx.guild.id)
-        if authorized:
+        if utility.auth_check_st_nar(guild, ctx.author.roles):
             try:
                 exist_check = db.get_player_info(ctx.guild.id, member.id)
             except TypeError:
