@@ -71,8 +71,16 @@ class BnW(commands.Cog):
         """
         Adds a blank entry for the mentioned Discord user.
         """
+        """authorized = False
         guild = db.get_guild_info(ctx.guild.id)
-        if utility.auth_check_st_nar(guild, ctx.author.roles):
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id:
+                authorized = True
+            elif guild.get("narrator_id") == role.id:
+                authorized = True"""
+        authorized = utility.auth_check_st_nar(ctx.guild.id, ctx.author.roles)
+        guild = db.get_guild_info(ctx.guild.id)
+        if authorized:
             try:
                 exist_check = db.get_player_info(ctx.guild.id, member.id)
             except TypeError:
@@ -153,7 +161,10 @@ class BnW(commands.Cog):
         Syntax: $set_agg_dmg [member] [value]
         """
         guild = db.get_guild_info(ctx.guild.id)
-        if utility.auth_check_st_nar(guild, ctx.author.roles):
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id or guild.get("narrator_id") == role.id:
+                authorized = True
+        if authorized:
             db.execute(
                 "UPDATE Characters SET agg_dmg = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -167,7 +178,10 @@ class BnW(commands.Cog):
         Syntax: $set_bp_upkeep [member] [value]
         """
         guild = db.get_guild_info(ctx.guild.id)
-        if utility.auth_check_st_nar(guild, ctx.author.roles):
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id or guild.get("narrator_id") == role.id:
+                authorized = True
+        if authorized:
             db.execute(
                 "UPDATE Characters SET upkeep = %s WHERE player_id = %s AND guild_id = %s",
                 (value, member.id, guild.get("id")),
@@ -182,7 +196,10 @@ class BnW(commands.Cog):
         Syntax: $check_stats / $check_stats [member]
         """
         guild = db.get_guild_info(ctx.guild.id)
-        if utility.auth_check_st_nar(guild, ctx.author.roles):
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id or guild.get("narrator_id") == role.id:
+                authorized = True
+        if authorized:
             if member == 0:
                 stats_member = ctx.author
             else:
@@ -228,7 +245,10 @@ class BnW(commands.Cog):
         Syntax: $rm_player [member]
         """
         guild = db.get_guild_info(ctx.guild.id)
-        if utility.auth_check_st_nar(guild, ctx.author.roles):
+        for role in ctx.author.roles:
+            if guild.get("st_id") == role.id or guild.get("narrator_id") == role.id:
+                authorized = True
+        if authorized:
             db.execute(
                 "DELETE FROM Characters WHERE player_id = %s AND guild_id = %s",
                 (int(member), guild.get("id")),
